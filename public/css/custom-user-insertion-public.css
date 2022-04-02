@@ -1,0 +1,125 @@
+.custom-user-tool__container .custom-user-tool__search--wrapper {
+  display: grid;
+  grid-template-columns: repeat(2, 50%);
+}
+
+.custom-user-tool__container
+  .custom-user-tool__search--wrapper
+  .custom-user-tool__search--field {
+  padding: 10px 15px;
+}
+
+.custom-user-tool__container
+  .custom-user-tool__search--wrapper
+  .custom-user-tool__search--field
+  label {
+  display: block;
+  color: #000;
+}
+
+.custom-user-tool__container
+  .custom-user-tool__search--wrapper
+  .custom-user-tool__search--field
+  input {
+  width: 100%;
+}
+
+.custom-user-tool__container
+  .custom-user-tool__search--wrapper
+  .custom-user-tool__search--field
+  select {
+  width: 100%;
+}
+.custom-user-tool__container
+  .custom-user-tool__search--wrapper
+  .custom-user-tool__search--submit {
+  margin: 20px 15px 0px;
+  text-transform: uppercase;
+}
+
+.custom-user-tool__container .custom-user-tool__list {
+  margin-top: 50px;
+}
+
+.custom-user-tool__container
+  .custom-user-tool__list
+  .custom-user-tool__list--wrapper {
+  display: grid;
+  grid-template-columns: repeat(3, 33.33%);
+  width: 100%;
+}
+
+.custom-user-tool__container
+  .custom-user-tool__list
+  .custom-user-tool__list--wrapper
+  .custom-user-tool__list--item {
+  margin: 0px 10px 20px 0px;
+  padding: 10px 15px;
+  background-color: rgb(240, 240, 240);
+  border-radius: 5px;
+  color: #7e7e7e;
+}
+
+.custom-user-tool__container
+  .custom-user-tool__list
+  .custom-user-tool__list--wrapper
+  .custom-user-tool__list--item
+  span {
+  display: block;
+  color: #000;
+}
+
+.custom-user-tool__container
+  .custom-user-tool__list
+  .custom-user-tool__list--wrapper
+  .custom-user-tool__list--item
+  p {
+  margin-bottom: 10px;
+}
+.custom-user-tool__container
+  .custom-user-tool__list
+  .custom-user-tool__list--wrapper
+  .custom-user-tool__list--item
+  h6 {
+  margin-bottom: 10px;
+}
+
+.custom-user-tool__container
+  .custom-user-tool__list
+  .custom-user-tool__list--nodata {
+  display: block;
+  font-size: 28px;
+  text-align: center;
+}
+
+#contact #date_of_birth {
+  padding: 5px 10px;
+  max-width: 100%;
+}
+
+#contact #date_of_birth::placeholder {
+  color: #000;
+}
+
+#contact input:focus,
+#contact input:not(:empty) {
+  border-color: rgb(0, 162, 255) !important;
+}
+
+.select2-search__field{
+  width: 100% !important;
+}
+
+@media screen and (max-width: 730px) {
+  .custom-user-tool__container
+    .custom-user-tool__list
+    .custom-user-tool__list--wrapper {
+    grid-template-columns: repeat(2, 50%);
+  }
+}
+
+@media screen and (max-width: 730px) {
+  .custom-user-tool__container .custom-user-tool__search--wrapper {
+    grid-template-columns: 100%;
+  }
+}

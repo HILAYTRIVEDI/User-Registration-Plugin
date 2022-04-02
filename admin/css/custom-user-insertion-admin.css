@@ -1,0 +1,22 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+
+
+ .custom_user_addressfield--wrapper input.custom_user_addressfield--text{
+     display: block;
+     width: 100%;
+     margin-bottom: 20px;
+ }
+
+
+.custom_user_ratingsfield--text{
+    width: 150px !important;
+  }
+  
+
+ .custom_meta_notes{
+     display: block;
+     margin-bottom: 5px;
+ }
