@@ -1,0 +1,107 @@
+(function ($) {
+  "use strict";
+  $(document).on("click", "#custom-user-tool__search--submit", function (e) {
+    var keyWord = $("#custom-user-tool__search--keyword").val();
+    var dob = $("#custom-user-tool__search--dob").val();
+    var skills = $("#custom-user-tool__search--skill").val();
+    var category = $("#custom-user-tool__search--category").val();
+
+    var data = {
+      action: "custom_search_listing_data",
+      keyWord,
+      dob,
+      skills,
+      category,
+      nonce: Custom_User_params.nonce,
+    };
+
+    console.log(data);
+
+    $.ajax({
+      url: Custom_User_params.ajaxurl,
+      data: data,
+      success: function (response) {
+        $(".custom-user-tool__list").replaceWith(response);
+      },
+    });
+  });
+
+  $(document).on("keypress", ".user_input", function (e) {
+    var regex = new RegExp("^[a-zA-Z0-9_ s\r\n]+$");
+    var key = String.fromCharCode(!e.charCode ? e.which : e.charCode);
+    if (!regex.test(key)) {
+      e.preventDefault();
+      return false;
+    }
+  });
+
+  $(document).on("change", "#profile_photo", function () {
+    const [file] = this.files;
+    if (file) {
+      $("#profile_photo_preview").css("display", "block");
+      $("#profile_photo_preview").attr("src", URL.createObjectURL(file));
+    }
+  });
+  $(document).ready(function () {
+    if ($("#contact").length > 0) {
+      var datePickerId = document.getElementById("date_of_birth");
+      datePickerId.max = new Date().toISOString().split("T")[0];
+    }
+    var form = $("#contact");
+
+    form.validate({
+      errorPlacement: function errorPlacement(error, element) {
+        element.before(error);
+      },
+      rules: {
+        profile_photo: {
+          required: true,
+        },
+        email: {
+          required: true,
+          email: true,
+        },
+      },
+    });
+    form.children("div").steps({
+      headerTag: "h3",
+      bodyTag: "section",
+      transitionEffect: "slideLeft",
+      onStepChanging: function (event, currentIndex, newIndex) {
+        form.validate().settings.ignore = ":disabled,:hidden";
+        return form.valid();
+      },
+      onFinishing: function (event, currentIndex) {
+        form.validate().settings.ignore = ":disabled";
+        return form.valid();
+      },
+      onFinished: function (event, currentIndex) {
+        event.preventDefault();
+        var fd = new FormData(form[0]);
+        fd.append("action", "custom_user_insertion_form");
+        fd.append("nonce", Custom_User_params.nonce);
+        fd.append("userAvatar", $("#profile_photo")[0].files[0]);
+        var inputs = $("#contact :input");
+        inputs.each(function () {
+          fd.append(this.name, $(this).val());
+        });
+        $.ajax({
+          url: Custom_User_params.ajaxurl,
+          type: "POST",
+          data: fd,
+          contentType: false,
+          processData: false,
+          success: function (response) {
+            console.log(response);
+            form[0].reset();
+            location.reload();
+          },
+        });
+      },
+    });
+  });
+  $(document).ready(function () {
+    $("#user_skill").select2();
+    $("#custom_user_cat").select2();
+  });
+})(jQuery);
