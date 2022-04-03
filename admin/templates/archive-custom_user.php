@@ -17,7 +17,7 @@ $cust_category = get_queried_object(  );
 </header>
 <div class="custom_user_template--content">
     <?php
-       echo  do_shortcode('[custom_user_search_tool_list category='.$cust_category->term_id.'], true');
+       echo  do_shortcode('[custom_user_search_tool_list category='.$cust_category->term_id.']');
     ?>
 </div>
 

@@ -387,25 +387,20 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 				if (!empty($meta['_wp_page_template'][0]) && $meta['_wp_page_template'][0] != $template) {
 					$template = $meta['_wp_page_template'][0];
 				}
+			} 
+			if(!is_single()){
+				$theme_files = 'archive-custom_user.php';
+				$exists_in_theme = locate_template($theme_files, false);
+				
+				if ( $exists_in_theme != '' ) {
+				  return $exists_in_theme;
+				} else {
+				  return plugin_dir_path(__FILE__) . 'templates/archive-custom_user.php';
+				}
 			}
 
 			return $template;
 		}
-
-		public function cu_archive_funciton( $template ) {
-			  $theme_files = 'archive-custom_user.php';
-			  $exists_in_theme = locate_template($theme_files, false);
-			  
-			  if ( $exists_in_theme != '' ) {
-				return $exists_in_theme;
-			  } else {
-				
-				return plugin_dir_path(__FILE__) . 'templates/archive-custom_user.php';
-			  }
-			return $template;
-		  }
-
-
 	}
 
 	if( is_admin() ) {
