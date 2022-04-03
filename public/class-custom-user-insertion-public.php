@@ -29,7 +29,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 	class Custom_User_Insertion_Public {
 
 		public function __construct(){
-			add_shortcode( 'custom_user_search_tool--form', array($this, 'custom_user_search_tool_form_handler') );
+			add_shortcode( 'custom_user_search_tool_form', array($this, 'custom_user_search_tool_form_handler') );
 			add_shortcode( 'custom_user_search_tool_list', array($this, 'custom_user_search_tool_list_handler') );
 		}
 		
@@ -56,37 +56,6 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			wp_enqueue_script( "multistepper_js", plugin_dir_url( __FILE__ ) . 'js/jquery.steps.min.js', array( 'jquery' ), "1.0.0", false );
 			wp_enqueue_script( "Custom_User_Insertion_public_js", plugin_dir_url( __FILE__ ) . 'js/custom-user-insertion-public.js', array( 'jquery' ), "1.0.0", false );
 			wp_localize_script('Custom_User_Insertion_public_js', 'Custom_User_params', array('ajaxurl' => admin_url( 'admin-ajax.php' ),'nonce' => wp_create_nonce('ajax-nonce')));
-		}
-
-		public function dropdown_filter( $output, $r ) {
-			$output = preg_replace( '/<select (.*?) >/', '<select $1 size="5" multiple>', $output);
-			return $output;
-		}
-
-		public function skill_data(){
-			$skill_args = array(
-				'post_type' 		=> "users",
-				'post_status'		=> 'publish',
-				'posts_per_page' 	=> -1,
-			);
-		
-			$result = new WP_Query( $skill_args );
-			$output_titles = array();
-			if ( $result->have_posts() ) {
-				while ( $result->have_posts() ) {
-					$result->the_post();
-					$my_id = esc_html(get_the_ID(  ));
-					$skills = get_post_meta( $my_id,  'custom_user_skills', true );
-					$skills_array = explode( " ", $skills );
-					foreach($skills_array as $skill){
-						if ( ! in_array( $skill, $output_titles ) ) {
-							$output_titles[] = $skill;
-						}
-					}
-				}
-			}
-
-			return $output_titles;
 		}
 
 		public function custom_user_search_tool_form_handler(){
@@ -127,20 +96,22 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 							<input id="date_of_birth" name="date_of_birth" type="date" class="required">
 							<label for="user_hobby">What are your hoibbies ?* ( write your hobbies seperated by " " )</label>
 							<input id="user_hobby" name="user_hobby" type="text" class="required user_input">
-							
+							<label for="custom_user_skill">What are your skills ? *</label>
 							<?php 
-								$output_titles = $this->skill_data();
+								$skills = get_option( '	custom-user-admin-page__skill--list' );
+								$skills_new_array = explode("\n",$skills);
 							?>
-							<label for="user_skill">What are your skills ? *</label>
-							<select name="user_skill" id="user_skill" class="required" name="states[]" multiple="multiple"> 
+							<select name="custom_user_skill" id="custom_user_skill" class="custom_user_skill required" name="skills[]" multiple="multiple">
 								<?php 
-								foreach($output_titles as $cst_skill){ ?>
-									<option value="<?php echo esc_attr($cst_skill) ?>"><?php echo esc_html($cst_skill) ?></option>
-								<?php } ?>
+									foreach( $skills_new_array as $ops ){ ?>
+										<option value="<?php echo esc_attr($ops)?>"><?php echo esc_html($ops)?></option>
+								<?php	}
+								?>
 							</select>
-							<label for="user_skill">Select the category *</label>
 							<?php 
 							$args = array(
+									'show_option_all'	=> "Select the category",
+									'show_option_none'	=> "Select the category",
 									'orderby'           => 'id',
 									'order'             => 'ASC',
 									'show_count'        => 0,
@@ -152,7 +123,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 									'hierarchical'      => 0,
 									'name'              => 'custom_user_cat',
 									'id'                => 'custom_user_cat',
-									'class'             => 'postform required',
+									'class'             => 'custom_user_cat required',
 									'depth'             => 0,
 									'tab_index'         => 0,
 									'taxonomy'          => array('user_category'),
@@ -375,12 +346,10 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			$date_of_birth=( isset( $_POST['date_of_birth'] ) && !empty( $_POST['date_of_birth'] ) ) ? $_POST['date_of_birth'] :"";
 			$user_postal = ( isset( $_POST['user_postal'] ) && !empty( $_POST['user_postal'] ) ) ? $_POST['user_postal'] :"";
 			$user_hobbies = ( isset( $_POST['user_hobby'] ) && !empty( $_POST['user_hobby'] ) ) ? $_POST['user_hobby'] :"" ;
-			$user_skills = ( isset( $_POST['user_skill'] ) && !empty( $_POST['user_skill'] ) ) ? $_POST['user_skill'] :"" ;
+			$user_skills = ( isset( $_POST['custom_user_skill'] ) && !empty( $_POST['custom_user_skill'] ) ) ? $_POST['custom_user_skill'] :"" ;
 			$custom_user_cat = ( isset( $_POST['custom_user_cat'] ) && !empty( $_POST['custom_user_cat'] ) ) ? $_POST['custom_user_cat'] :"" ;
 			$multi_select_compone = ( isset( $_POST['states'] ) && !empty( $_POST['states'] ) ) ? $_POST['states'] :"" ;
-
-			print_r($_POST);
-
+			
 			$my_cptpost_args = array(
 
 				'post_title'    => $user_name,

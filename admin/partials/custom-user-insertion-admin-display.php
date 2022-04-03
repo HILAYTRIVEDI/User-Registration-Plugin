@@ -14,3 +14,16 @@
 ?>
 
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->
+
+<form method="POST" action="options.php" enctype="multipart/form-data">
+
+    <?php 
+
+        settings_fields('custom_user_skills');
+        do_settings_sections('custom_user_skills');
+
+        submit_button(); 
+
+    ?>
+
+</form>

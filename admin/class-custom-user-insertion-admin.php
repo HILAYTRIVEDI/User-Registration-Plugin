@@ -51,6 +51,62 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 		}
 
 		/**
+		 * Register the Custom admin page for the admin area.
+		 *
+		 * @since    1.0.0
+		 */
+		public function custom_user_admin_menu() {
+			add_menu_page(
+				__( 'Custom Users skills', 'Custom_User_Insertion' ),
+				__( 'Custom Users skills menu', 'Custom_User_Insertion' ),
+				'manage_options',
+				'custom-user-skills',
+				array($this,'custom_user_admin_menu_content_callback'),
+				'dashicons-schedule',
+				7
+			);
+		}
+
+		/**
+		 * A call back funciton of custom admin page content
+		 *
+		 * @since    1.0.0
+		 */
+		public function custom_user_admin_menu_content_callback() {
+			require_once plugin_dir_path(dirname(__FILE__)) . 'admin/partials/custom-user-insertion-admin-display.php';
+		}
+
+		/**
+		 * Register the settings section to the cutom admin page
+		 *
+		 * @since    1.0.0
+		 */
+		public function custom_user_skills()
+		{
+			//Adding general setting section
+			add_settings_section(
+				'custom_user_skills',
+				'Custom User Skills',
+				array($this,'custom_user_skills_callback'),
+				'custom_user_skills'
+			);
+			register_setting('custom_user_skills', 'custom-user-admin-page__skill--list');
+			
+		}
+
+		/**
+		 * Call back function for the custom setting section
+		 *
+		 * @since    1.0.0
+		 */
+		public function custom_user_skills_callback(){
+
+			require_once plugin_dir_path(dirname(__FILE__)) . 'admin/partials/custom_user_settings_callback.php';
+
+		}
+
+
+		/**
 		 * Register the Custom Post Type for the admin area.
 		 *
 		 * @since    1.0.0
@@ -237,7 +293,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 		public function custom_user_skills_html($post) {
 			$skills = get_post_meta( $post->ID,  'custom_user_skills', true );
 			?>
-			<label for="custom_user_skillsfield" class="custom_meta_notes">Please enter your new skills seperated by " "</label>
+			<label for="custom_user_skillsfield" class="custom_meta_notes">Please enter your new skills seperated by ","</label>
 			<div class="custom_user_skillsfield--wrapper">
 				<input id="custom_user_skillsfield" value="<?php echo esc_html($skills)?>" class="user_input custom_user_skillsfield--text" name="custom_user_skillsfield"/>
 			</div>

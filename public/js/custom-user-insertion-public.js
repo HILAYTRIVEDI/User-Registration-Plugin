@@ -101,7 +101,7 @@
     });
   });
   $(document).ready(function () {
-    $("#user_skill").select2();
+    $("#custom_user_skill").select2();
     $("#custom_user_cat").select2();
   });
 })(jQuery);
