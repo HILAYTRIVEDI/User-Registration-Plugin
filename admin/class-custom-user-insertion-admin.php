@@ -388,7 +388,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 					$template = $meta['_wp_page_template'][0];
 				}
 			} 
-			if(!is_single()){
+			if(!is_single() && !is_page()){
 				$theme_files = 'archive-custom_user.php';
 				$exists_in_theme = locate_template($theme_files, false);
 				

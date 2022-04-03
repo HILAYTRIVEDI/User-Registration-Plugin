@@ -110,7 +110,6 @@
           contentType: false,
           processData: false,
           success: function (response) {
-            console.log(response);
             form[0].reset();
             location.reload();
           },

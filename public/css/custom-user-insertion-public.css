@@ -101,6 +101,13 @@
 .custom-user-tool__container
   .custom-user-tool__list
   .custom-user-tool__list--wrapper
+  .custom-user-tool__list--item .custom-user__avatar{
+    max-width: 100%;
+  }
+
+.custom-user-tool__container
+  .custom-user-tool__list
+  .custom-user-tool__list--wrapper
   .custom-user-tool__list--item
   span {
   display: block;

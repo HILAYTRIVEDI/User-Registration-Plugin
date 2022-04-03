@@ -189,6 +189,9 @@ class Custom_User_Insertion {
 		$this->loader->add_action( 'wp_ajax_custom_user_insertion_form', $plugin_public,'custom_user_insertion_form_callback');
 		$this->loader->add_action( 'wp_ajax_nopriv_custom_user_insertion_form', $plugin_public, 'custom_user_insertion_form' );
 
+		// Filters
+		$this->loader->add_filter( 'wp_dropdown_cats', $plugin_public, 'wp_dropdown_cats_multiple', 10, 2 );
+
 	}
 
 	/**
