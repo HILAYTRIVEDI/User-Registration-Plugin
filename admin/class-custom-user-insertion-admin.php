@@ -357,6 +357,9 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 			return array_merge($columns, array(
 				'title' => __('Name'),
 				'email' => __('Email'),
+				'custom_user_ratings' => __('Ratings'),
+				'custom_user_dob' => __('Date of birth'),
+				'taxonomy-user_category' => __('Category'),
 				'date' => __('Inquiry Date'),
 			));
 		}
@@ -369,7 +372,13 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 				case 'email':
 					echo esc_html__(get_post_meta($post->ID, 'custom_user_email', true));
 					break;
-			}
+				case 'custom_user_ratings':
+					echo esc_html__(get_post_meta($post->ID, 'custom_user_ratings', true));
+					break;
+				case 'custom_user_dob':
+					echo esc_html__(get_post_meta($post->ID, 'custom_user_dob', true));
+					break;
+		}
 		}
 
 		public function cu_add_page_template_to_dropdown( $templates )

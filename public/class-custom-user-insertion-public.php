@@ -31,6 +31,8 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 		public function __construct(){
 			add_shortcode( 'custom_user_search_tool_form', array($this, 'custom_user_search_tool_form_handler') );
 			add_shortcode( 'custom_user_search_tool_list', array($this, 'custom_user_search_tool_list_handler') );
+			add_shortcode( 'custom_user_login--form', array($this, 'custom_user_login_form_handler') );
+
 		}
 		
 		/**
@@ -166,6 +168,13 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			$shortcode_args = shortcode_atts( array(
 				'category' => ""
 			), $attr );
+			$registered_user_id=( isset( $_GET['registered_user_id'] ) && !empty( $_GET['registered_user_id'] ) ) ? $_GET['registered_user_id'] :"";
+			if ($registered_user_id !== "") {
+                wp_update_post(array(
+                'ID'    =>  $registered_user_id,
+                'post_status'   =>  'publish'
+                ));
+            }
 			ob_start(); ?>
 			<div class="custom-user-tool__container">
 				<div id="custom-user-tool__search--form" class="custom-user-tool__search--wrapper">
@@ -301,6 +310,80 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			$html = ob_get_clean();
 			return $html;
 		}
+
+		public function custom_user_login_form_handler(){
+            $user_name=( isset( $_GET['customuser_name'] ) && !empty( $_GET['customuser_name'] ) ) ? $_GET['customuser_name'] :"";
+            $name=( isset( $_GET['customname'] ) && !empty( $_GET['customname'] ) ) ? $_GET['customname'] :""; 
+            $surname=( isset( $_GET['surname'] ) && !empty( $_GET['surname'] ) ) ? $_GET['surname'] :"";
+            $email=( isset( $_GET['email'] ) && !empty( $_GET['email'] ) ) ? $_GET['email'] :"";
+            $address=( isset( $_GET['address'] ) && !empty( $_GET['address'] ) ) ? $_GET['address'] :"";
+            $date_of_birth=( isset( $_GET['date_of_birth'] ) && !empty( $_GET['date_of_birth'] ) ) ? $_GET['date_of_birth'] :"";
+            $user_postal = ( isset( $_GET['user_postal'] ) && !empty( $_GET['user_postal'] ) ) ? $_GET['user_postal'] :"";
+            $user_hobbies = ( isset( $_GET['user_hobby'] ) && !empty( $_GET['user_hobby'] ) ) ? $_GET['user_hobby'] :"" ;
+            $user_skills = ( isset( $_GET['user_skill'] ) && !empty( $_GET['user_skill'] ) ) ? $_GET['user_skill'] :"" ;
+            $custom_user_cat = ( isset( $_GET['custom_user_cat'] ) && !empty( $_GET['custom_user_cat'] ) ) ? $_GET['custom_user_cat'] :"" ;
+			$user_avatar=( isset( $_GET['user_avatar'] ) && !empty( $_GET['user_avatar'] ) ) ? $_GET['user_avatar'] :"";
+
+            $my_cptpost_args = array(
+
+                'post_title'    => $user_name,
+                'post_status'   => 'draft',
+                'post_type'     => 'custom_user',
+                'tax_input'     => array( 'user_category' => $custom_user_cat),
+
+                'meta_input'    => array(
+                    'custom_user_first_name'        => $name,
+                    'custom_user_lastname_name'     => $surname,
+                    'custom_user_email'             => $email,
+                    'custom_user_dob'               => $date_of_birth,
+                    'custom_user_address'           => $address,
+                    'custom_user_postal'            => $user_postal,
+                    'custom_user_skills'            => $user_skills,
+                    'custom_user_hobby'             => $user_hobbies,
+                )   
+            );
+			$cpt_id = wp_insert_post( $my_cptpost_args );
+			if ($_FILES) {
+                foreach ($_FILES as $file => $array) {
+                    if ($_FILES[$file]['error'] !== UPLOAD_ERR_OK) {
+                        return "upload error : " . $_FILES[$file]['error'];
+                    }
+                    $attach_id = media_handle_upload($file, $cpt_id);
+                }
+            }
+            if ($attach_id > 0) {
+                //and if you want to set that image as Post then use:
+                update_post_meta($cpt_id, '_thumbnail_id', $attach_id);
+            }
+
+            $my_post1 = get_post($attach_id);
+            $my_post2 = get_post($cpt_id);
+            $my_post = array_merge($my_post1, $my_post2);
+            if ($cpt_id !== 0) {
+                wp_mail( 'admin@gmail.com', 'New User Inquiry', 'New user has been registered! click the link below to verify the user. <a href="http://dummy-site.local/login/?registered_user_id='.$cpt_id.'">verify user here</a>' ); 
+            
+            }
+            ob_start(); ?>
+            <div class="container">
+                <form id="user-login-form" action="#" method="post">
+                    <div class="login-username-field-wrapper">  
+                        <label for="loginformUserName">User name *</label>
+                        <input id="loginformUserName" name="loginformUserName" type="text" class="required user_input">
+                    </div>
+                    <div class="login-email-field-wrapper">
+                        <label for="loginformEmail">Email *</label>
+                        <input id="loginformEmail" name="loginformEmail" type="text" class="required">
+                    </div>
+                    <div class="login-submitBtn-wrapper">
+                        <input id="login-submitBtn" class="login-submitBtn" value="Submit" name="submit" type="submit"/>
+                    </div>
+                </form>
+            </div>
+            <?php 
+            $html = ob_get_clean();
+            return $html;
+        }
+
 		public function custom_search_listing_data_callback(){
 
 			check_ajax_referer( 'ajax-nonce', 'nonce' );
@@ -443,46 +526,8 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			$custom_user_cat = ( isset( $_POST['custom_user_cat'] ) && !empty( $_POST['custom_user_cat'] ) ) ? $_POST['custom_user_cat'] :"" ;
 			$multi_select_compone = ( isset( $_POST['states'] ) && !empty( $_POST['states'] ) ) ? $_POST['states'] :"" ;
 			
-
-			$final_user_avatar = $user_avatar['image']['name'];
-
-			$my_cptpost_args = array(
-
-				'post_title'    => $user_name,
-				'post_status'   => 'draft',
-				'post_type' 	=> 'custom_user',
-				'tax_input' 	=> array( 'user_category' => $custom_user_cat),
-
-				'meta_input' 	=> array(
-					'custom_user_first_name'		=> $name,
-					'custom_user_lastname_name'		=> $surname,
-					'custom_user_email'				=> $email,
-					'custom_user_dob' 				=> $date_of_birth,
-					'custom_user_address' 			=> $address,
-					'custom_user_postal' 			=> $user_postal,
-					'custom_user_skills' 			=> $user_skills,
-					'custom_user_hobby'				=> $user_hobbies,
-					'custom_multi_field'            => $multi_select_compone,
-				)	
-			);
-			$cpt_id = wp_insert_post( $my_cptpost_args );
-			if ($_FILES) {
-                foreach ($_FILES as $file => $array) {
-                    if ($_FILES[$file]['error'] !== UPLOAD_ERR_OK) {
-                        return "upload error : " . $_FILES[$file]['error'];
-                    }
-                    $attach_id = media_handle_upload($file, $cpt_id);
-                }
-            }
-            if ($attach_id > 0) {
-                //and if you want to set that image as Post then use:
-                update_post_meta($cpt_id, '_thumbnail_id', $attach_id);
-            }
-
-            $my_post1 = get_post($attach_id);
-            $my_post2 = get_post($cpt_id);
-            $my_post = array_merge($my_post1, $my_post2);
-	
+			wp_mail( $email, 'Please verify your account', 'Thanks for registration! click the link below to verify. <a href="http://dummy-site.local/login/?email='.$email.'&unique_code='.$unique_code.'&customuser_name='.urlencode($user_name).'&customname='.urlencode($name).'&surname='.urlencode($surname).'&date_of_birth='.$date_of_birth.'&address='.urlencode($address).'&user_postal='.$user_postal.'&user_skill='.urlencode($user_skills).'&user_hobby='.urlencode($user_hobbies).'&custom_user_cat='.$custom_user_cat.'&user_avatar='.$user_avatar.'">verify email here</a>' ); 
+            
 		}
 	}
 
