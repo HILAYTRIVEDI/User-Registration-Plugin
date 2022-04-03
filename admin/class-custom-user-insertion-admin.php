@@ -309,6 +309,16 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 			</div>
 			<?php
 		}
+
+		public function custom_user_ratings_html($post) {
+			$ratings = get_post_meta( $post->ID,  'custom_user_ratings', true );
+			?>
+			<div class="custom_user_ratingsfield--wrapper">
+				<input type="number" placeholder="Ratings for users" value="<?php echo esc_html($ratings)?>" name="custom_user_ratingsfield" id="custom_user_ratingsfield" class="custom_user_ratingsfield--text" max="5" min="1" require>
+			</div>
+			<?php
+		}
+
 		
 		public function custom_meta_box_saver($post_id){
 
@@ -333,18 +343,11 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 			if(isset($_POST["custom_user_hobbyfield"])):
 				update_post_meta($post_id, 'custom_user_hobby', sanitize_text_field( $_POST["custom_user_hobbyfield"]) );
 			endif;
+			if(isset($_POST["custom_user_ratingsfield"])):
+				update_post_meta($post_id, 'custom_user_ratings', sanitize_text_field( $_POST["custom_user_ratingsfield"]) );
+			endif;
 			
 		}
-
-		public function custom_user_ratings_html($post) {
-			$ratings = get_post_meta( $post->ID,  'custom_user_ratings', true );
-			?>
-			<div class="custom_user_ratingsfield--wrapper">
-				<input type="number" placeholder="Ratings for users" value="<?php echo esc_html($ratings)?>" name="custom_user_ratingsfield" id="custom_user_ratingsfield" class="custom_user_ratingsfield--text" max="5" min="1" require>
-			</div>
-			<?php
-		}
-
 		
 		public function manage_custom_user_posts_columns($columns) {
 			unset($columns['date']);
@@ -368,6 +371,41 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 					break;
 			}
 		}
+
+		public function cu_add_page_template_to_dropdown( $templates )
+		{
+			$templates[plugin_dir_path( __FILE__ ) . 'templates/template-post-listing.php'] = __( 'Registration form template', 'text-domain' );
+
+			return $templates;
+		}
+
+		public function cu_change_page_template($template)
+		{
+			if (is_page()) {
+				$meta = get_post_meta(get_the_ID());
+
+				if (!empty($meta['_wp_page_template'][0]) && $meta['_wp_page_template'][0] != $template) {
+					$template = $meta['_wp_page_template'][0];
+				}
+			}
+
+			return $template;
+		}
+
+		public function cu_archive_funciton( $template ) {
+			  $theme_files = 'archive-custom_user.php';
+			  $exists_in_theme = locate_template($theme_files, false);
+			  
+			  if ( $exists_in_theme != '' ) {
+				return $exists_in_theme;
+			  } else {
+				
+				return plugin_dir_path(__FILE__) . 'templates/archive-custom_user.php';
+			  }
+			return $template;
+		  }
+
+
 	}
 
 	if( is_admin() ) {

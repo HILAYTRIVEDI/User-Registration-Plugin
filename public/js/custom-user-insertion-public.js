@@ -2,28 +2,35 @@
   "use strict";
   $(document).on("click", "#custom-user-tool__search--submit", function (e) {
     var keyWord = $("#custom-user-tool__search--keyword").val();
-    var dob = $("#custom-user-tool__search--dob").val();
+    var dobfrom = $("#custom-user-tool__search--dobfrom").val();
+    var dobto = $("#custom-user-tool__search--dobto").val();
     var skills = $("#custom-user-tool__search--skill").val();
     var category = $("#custom-user-tool__search--category").val();
+    var ratings = $("#custom-user-tool__search--ratings").val();
 
     var data = {
       action: "custom_search_listing_data",
       keyWord,
-      dob,
       skills,
       category,
+      ratings,
+      dobfrom,
+      dobto,
       nonce: Custom_User_params.nonce,
     };
-
-    console.log(data);
 
     $.ajax({
       url: Custom_User_params.ajaxurl,
       data: data,
       success: function (response) {
+        console.log(response);
         $(".custom-user-tool__list").replaceWith(response);
       },
     });
+  });
+
+  $(document).on("change", "#custom-user-tool__search--ratings", function (e) {
+    $("#custom-user-tool__search--ratingsvalue").text($(this).val());
   });
 
   $(document).on("keypress", ".user_input", function (e) {
@@ -42,7 +49,18 @@
       $("#profile_photo_preview").attr("src", URL.createObjectURL(file));
     }
   });
+
   $(document).ready(function () {
+    if ($("#custom-user-tool__search--form").length > 0) {
+      var datePickerIdfrom = document.getElementById(
+        "custom-user-tool__search--dobfrom"
+      );
+      datePickerIdfrom.max = new Date().toISOString().split("T")[0];
+      var datePickerIdto = document.getElementById(
+        "custom-user-tool__search--dobto"
+      );
+      datePickerIdto.max = new Date().toISOString().split("T")[0];
+    }
     if ($("#contact").length > 0) {
       var datePickerId = document.getElementById("date_of_birth");
       datePickerId.max = new Date().toISOString().split("T")[0];
@@ -100,6 +118,7 @@
       },
     });
   });
+
   $(document).ready(function () {
     $("#custom_user_skill").select2();
     $("#custom_user_cat").select2();

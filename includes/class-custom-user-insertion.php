@@ -154,6 +154,7 @@ class Custom_User_Insertion {
 
 		$plugin_admin = new Custom_User_Insertion_Admin( $this->get_plugin_name(), $this->get_version() );
 
+		// Actions
 		$this->loader->add_action( 'init', $plugin_admin, 'custom_posts' );
 		$this->loader->add_action( 'init', $plugin_admin, 'custom_taxonomy' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
@@ -162,8 +163,13 @@ class Custom_User_Insertion {
 		$this->loader->add_action('admin_init', $plugin_admin, 'custom_user_skills');
 		$this->loader->add_action( 'add_meta_boxes', $plugin_admin, 'custom_metabox' );
 		$this->loader->add_action( 'save_post', $plugin_admin, 'custom_meta_box_saver' );
-		$this->loader->add_filter( 'manage_custom_user_posts_columns', $plugin_admin, 'manage_custom_user_posts_columns');
 		$this->loader->add_action('manage_custom_user_posts_custom_column', $plugin_admin, 'adding_custom_user_posts_columns_data', 10, 2);
+
+		// Filters
+		$this->loader->add_filter( 'theme_page_templates', $plugin_admin, 'cu_add_page_template_to_dropdown' );
+		$this->loader->add_filter('template_include', $plugin_admin, 'cu_change_page_template');
+		$this->loader->add_filter('template_include', $plugin_admin, 'cu_archive_funciton');
+		$this->loader->add_filter( 'manage_custom_user_posts_columns', $plugin_admin, 'manage_custom_user_posts_columns');
 
 	}
 
