@@ -51,6 +51,62 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 		}
 
 		/**
+		 * Register the Custom admin page for the admin area.
+		 *
+		 * @since    1.0.0
+		 */
+		public function custom_user_admin_menu() {
+			add_menu_page(
+				__( 'Custom Users skills', 'Custom_User_Insertion' ),
+				__( 'Custom Users skills menu', 'Custom_User_Insertion' ),
+				'manage_options',
+				'custom-user-skills',
+				array($this,'custom_user_admin_menu_content_callback'),
+				'dashicons-schedule',
+				7
+			);
+		}
+
+		/**
+		 * A call back funciton of custom admin page content
+		 *
+		 * @since    1.0.0
+		 */
+		public function custom_user_admin_menu_content_callback() {
+			require_once plugin_dir_path(dirname(__FILE__)) . 'admin/partials/custom-user-insertion-admin-display.php';
+		}
+
+		/**
+		 * Register the settings section to the cutom admin page
+		 *
+		 * @since    1.0.0
+		 */
+		public function custom_user_skills()
+		{
+			//Adding general setting section
+			add_settings_section(
+				'custom_user_skills',
+				'Custom User Skills',
+				array($this,'custom_user_skills_callback'),
+				'custom_user_skills'
+			);
+			register_setting('custom_user_skills', 'custom-user-admin-page__skill--list');
+			
+		}
+
+		/**
+		 * Call back function for the custom setting section
+		 *
+		 * @since    1.0.0
+		 */
+		public function custom_user_skills_callback(){
+
+			require_once plugin_dir_path(dirname(__FILE__)) . 'admin/partials/custom_user_settings_callback.php';
+
+		}
+
+
+		/**
 		 * Register the Custom Post Type for the admin area.
 		 *
 		 * @since    1.0.0
@@ -237,7 +293,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 		public function custom_user_skills_html($post) {
 			$skills = get_post_meta( $post->ID,  'custom_user_skills', true );
 			?>
-			<label for="custom_user_skillsfield" class="custom_meta_notes">Please enter your new skills seperated by " "</label>
+			<label for="custom_user_skillsfield" class="custom_meta_notes">Please enter your new skills seperated by ","</label>
 			<div class="custom_user_skillsfield--wrapper">
 				<input id="custom_user_skillsfield" value="<?php echo esc_html($skills)?>" class="user_input custom_user_skillsfield--text" name="custom_user_skillsfield"/>
 			</div>
@@ -253,6 +309,16 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 			</div>
 			<?php
 		}
+
+		public function custom_user_ratings_html($post) {
+			$ratings = get_post_meta( $post->ID,  'custom_user_ratings', true );
+			?>
+			<div class="custom_user_ratingsfield--wrapper">
+				<input type="number" placeholder="Ratings for users" value="<?php echo esc_html($ratings)?>" name="custom_user_ratingsfield" id="custom_user_ratingsfield" class="custom_user_ratingsfield--text" max="5" min="1" require>
+			</div>
+			<?php
+		}
+
 		
 		public function custom_meta_box_saver($post_id){
 
@@ -277,18 +343,11 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 			if(isset($_POST["custom_user_hobbyfield"])):
 				update_post_meta($post_id, 'custom_user_hobby', sanitize_text_field( $_POST["custom_user_hobbyfield"]) );
 			endif;
+			if(isset($_POST["custom_user_ratingsfield"])):
+				update_post_meta($post_id, 'custom_user_ratings', sanitize_text_field( $_POST["custom_user_ratingsfield"]) );
+			endif;
 			
 		}
-
-		public function custom_user_ratings_html($post) {
-			$ratings = get_post_meta( $post->ID,  'custom_user_ratings', true );
-			?>
-			<div class="custom_user_ratingsfield--wrapper">
-				<input type="number" placeholder="Ratings for users" value="<?php echo esc_html($ratings)?>" name="custom_user_ratingsfield" id="custom_user_ratingsfield" class="custom_user_ratingsfield--text" max="5" min="1" require>
-			</div>
-			<?php
-		}
-
 		
 		public function manage_custom_user_posts_columns($columns) {
 			unset($columns['date']);
@@ -311,6 +370,36 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 					echo esc_html__(get_post_meta($post->ID, 'custom_user_email', true));
 					break;
 			}
+		}
+
+		public function cu_add_page_template_to_dropdown( $templates )
+		{
+			$templates[plugin_dir_path( __FILE__ ) . 'templates/template-post-listing.php'] = __( 'Registration form template', 'text-domain' );
+
+			return $templates;
+		}
+
+		public function cu_change_page_template($template)
+		{
+			if (is_page()) {
+				$meta = get_post_meta(get_the_ID());
+
+				if (!empty($meta['_wp_page_template'][0]) && $meta['_wp_page_template'][0] != $template) {
+					$template = $meta['_wp_page_template'][0];
+				}
+			} 
+			if(!is_single() && !is_page()){
+				$theme_files = 'archive-custom_user.php';
+				$exists_in_theme = locate_template($theme_files, false);
+				
+				if ( $exists_in_theme != '' ) {
+				  return $exists_in_theme;
+				} else {
+				  return plugin_dir_path(__FILE__) . 'templates/archive-custom_user.php';
+				}
+			}
+
+			return $template;
 		}
 	}
 

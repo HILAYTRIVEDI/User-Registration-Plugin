@@ -20,3 +20,12 @@
      display: block;
      margin-bottom: 5px;
  }
+
+ .custom-user-admin-page{
+     display: flex;
+     flex-direction: column;
+ }
+ .custom-user-admin-page .custom-user-admin-page__skill--text{
+     max-width: 500px;
+     width: 100%;
+ }

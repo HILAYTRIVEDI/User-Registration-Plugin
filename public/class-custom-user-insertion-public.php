@@ -29,7 +29,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 	class Custom_User_Insertion_Public {
 
 		public function __construct(){
-			add_shortcode( 'custom_user_search_tool--form', array($this, 'custom_user_search_tool_form_handler') );
+			add_shortcode( 'custom_user_search_tool_form', array($this, 'custom_user_search_tool_form_handler') );
 			add_shortcode( 'custom_user_search_tool_list', array($this, 'custom_user_search_tool_list_handler') );
 		}
 		
@@ -58,35 +58,20 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			wp_localize_script('Custom_User_Insertion_public_js', 'Custom_User_params', array('ajaxurl' => admin_url( 'admin-ajax.php' ),'nonce' => wp_create_nonce('ajax-nonce')));
 		}
 
-		public function dropdown_filter( $output, $r ) {
-			$output = preg_replace( '/<select (.*?) >/', '<select $1 size="5" multiple>', $output);
-			return $output;
-		}
+		public function wp_dropdown_cats_multiple( $output, $r ) {
 
-		public function skill_data(){
-			$skill_args = array(
-				'post_type' 		=> "users",
-				'post_status'		=> 'publish',
-				'posts_per_page' 	=> -1,
-			);
+			if( isset( $r['multiple'] ) && $r['multiple'] ) {
 		
-			$result = new WP_Query( $skill_args );
-			$output_titles = array();
-			if ( $result->have_posts() ) {
-				while ( $result->have_posts() ) {
-					$result->the_post();
-					$my_id = esc_html(get_the_ID(  ));
-					$skills = get_post_meta( $my_id,  'custom_user_skills', true );
-					$skills_array = explode( " ", $skills );
-					foreach($skills_array as $skill){
-						if ( ! in_array( $skill, $output_titles ) ) {
-							$output_titles[] = $skill;
-						}
-					}
-				}
+				 $output = preg_replace( '/^<select/i', '<select multiple', $output );
+		
+				$output = str_replace( "name='{$r['name']}'", "name='{$r['name']}[]'", $output );
+		
+				foreach ( array_map( 'trim', explode( ",", $r['selected'] ) ) as $value )
+					$output = str_replace( "value=\"{$value}\"", "value=\"{$value}\" selected", $output );
+		
 			}
-
-			return $output_titles;
+		
+			return $output;
 		}
 
 		public function custom_user_search_tool_form_handler(){
@@ -106,11 +91,10 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 							<input id="email" name="email" type="text" class="required">
 							<p>(*) Mandatory</p>
 						</section>
-						<!-- class="required" -->
 						<h3>Profile Photo</h3>
 						<section>
 							<label for="profile_photo">Please Upload Your Profile Photo</label>
-							<input id="profile_photo" name="profile_photo" type="file"  accept="image/*">
+							<input id="profile_photo" name="profile_photo" class="required" type="file"  accept="image/*">
 							<img src="#" id="profile_photo_preview"  alt="User Avatar">
 							<p>(*) Mandatory</p>
 						</section>
@@ -127,20 +111,22 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 							<input id="date_of_birth" name="date_of_birth" type="date" class="required">
 							<label for="user_hobby">What are your hoibbies ?* ( write your hobbies seperated by " " )</label>
 							<input id="user_hobby" name="user_hobby" type="text" class="required user_input">
-							
+							<label for="custom_user_skill">What are your skills ? *</label>
 							<?php 
-								$output_titles = $this->skill_data();
+								$skills = get_option( '	custom-user-admin-page__skill--list' );
+								$skills_new_array = explode("\n",$skills);
 							?>
-							<label for="user_skill">What are your skills ? *</label>
-							<select name="user_skill" id="user_skill" class="required" name="states[]" multiple="multiple"> 
+							<select name="custom_user_skill" id="custom_user_skill" class="custom_user_skill required" name="skills[]" multiple="multiple">
 								<?php 
-								foreach($output_titles as $cst_skill){ ?>
-									<option value="<?php echo esc_attr($cst_skill) ?>"><?php echo esc_html($cst_skill) ?></option>
-								<?php } ?>
+									foreach( $skills_new_array as $ops ){ ?>
+										<option value="<?php echo esc_attr($ops)?>"><?php echo esc_html($ops)?></option>
+								<?php	}
+								?>
 							</select>
-							<label for="user_skill">Select the category *</label>
+							<label for="custom_user_skill">Select the User category? *</label>
 							<?php 
 							$args = array(
+									'show_option_all'	=> "",
 									'orderby'           => 'id',
 									'order'             => 'ASC',
 									'show_count'        => 0,
@@ -152,7 +138,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 									'hierarchical'      => 0,
 									'name'              => 'custom_user_cat',
 									'id'                => 'custom_user_cat',
-									'class'             => 'postform required',
+									'class'             => 'custom_user_cat required',
 									'depth'             => 0,
 									'tab_index'         => 0,
 									'taxonomy'          => array('user_category'),
@@ -160,7 +146,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 									'option_none_value' => -1,
 									'value_field'       => 'term_id',
 									'required'          => false,
-									'multiple'			=> true,
+									'multiple'          => true
 								);
 								
 								wp_dropdown_categories( $args );					
@@ -176,28 +162,38 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			return $html;
 		}
 
-		public function custom_user_search_tool_list_handler(){
+		public function custom_user_search_tool_list_handler( $attr ){
+			$shortcode_args = shortcode_atts( array(
+				'category' => ""
+			), $attr );
 			ob_start(); ?>
 			<div class="custom-user-tool__container">
 				<div id="custom-user-tool__search--form" class="custom-user-tool__search--wrapper">
 					<div class="custom-user-tool__search--field">
 						<label for="custom-user-tool__search--keyword"> Search User by Keyword</label>
-						<input type="text" id="custom-user-tool__search--keyword" class="custom-user-tool__search--keyword">
+						<input type="text" id="custom-user-tool__search--keyword" class="custom-user-tool__search--keyword user_input">
 					</div>
 					<div class="custom-user-tool__search--field">
 						<label for="custom-user-tool__search--dob"> Search User by Date Of Birth</label>
-						<input type="range" id="custom-user-tool__search--dob" min="10" max="100" class="custom-user-tool__search--dob">
+						<div class="custom-user-tool__search--dob-wrapper">
+							<span>From: </span>
+							<input type="date" id="custom-user-tool__search--dobfrom" class="custom-user-tool__search--dobfrom">
+							<span>To: </span>
+							<input type="date" id="custom-user-tool__search--dobto" class="custom-user-tool__search--dobto">
+						</div>
 					</div>
 					<div class="custom-user-tool__search--field">
-						<?php 
-								$output_titles = $this->skill_data();
-							?>
 						<label for="custom-user-tool__search--skill"> Search User by Skill</label>
+						<?php 
+							$skills = get_option( '	custom-user-admin-page__skill--list' );
+							$skills_new_array = explode("\n",$skills);
+						?>
 						<select name="custom-user-tool__search--skill" id="custom-user-tool__search--skill">
 							<?php 
-							foreach($output_titles as $cst_skill){ ?>
-								<option value="<?php echo esc_attr($cst_skill) ?>"><?php echo esc_html($cst_skill) ?></option>
-							<?php } ?>
+								foreach( $skills_new_array as $ops ){ ?>
+									<option value="<?php echo esc_attr($ops)?>"><?php echo esc_html($ops)?></option>
+							<?php	}
+							?>	
 						</select>
 					</div>
 					<div class="custom-user-tool__search--field">
@@ -205,26 +201,34 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 						<?php 
 						
 						$args = array(
-							'show_option_all'    => 'All Categories',
-							'orderby'            => 'NAME', 
-							'order'              => 'ASC',
-							'show_count'         => 0,
-							'hide_empty'         => 1, 
-							'child_of'           => 0,
-							'exclude'            => 1,
-							'echo'               => 1,
-							'hierarchical'       => 1, 
-							'name'               => 'cust_cat',
-							'id'                 => 'custom-user-tool__search--category',
-							'class'              => 'postform',
-							'depth'              => 1,
-							'tab_index'          => 0,
-							'taxonomy'           => 'user_category',
-							'hide_if_empty'      => false,
+							'show_option_all'	=> "None",
+							'orderby'           => 'id',
+							'order'             => 'ASC',
+							'show_count'        => 0,
+							'hide_empty'        => 0,
+							'child_of'          => 0,
+							'exclude'           => '',
+							'echo'              => 1,
+							'selected'          => $shortcode_args['category'],
+							'hierarchical'      => 0,
+							'name'              => 'custom_user_cat_public',
+							'id'                => 'custom_user_cat_public',
+							'class'             => 'custom_user_cat_public required',
+							'depth'             => 0,
+							'tab_index'         => 0,
+							'taxonomy'          => array('user_category'),
+							'hide_if_empty'     => false,
+							'option_none_value' => -1,
+							'value_field'       => 'term_id',
 						);
 						
-						wp_dropdown_categories( $args );					
+						wp_dropdown_categories( $args );				
 						?>
+					</div>
+					<div class="custom-user-tool__search--field">
+						<label for="custom-user-tool__search--ratings"> Search User by Ratings:</label>
+						<span id="custom-user-tool__search--ratingsvalue">1</span>/5
+						<input type="range" id="custom-user-tool__search--ratings" min="1" max="5" class="custom-user-tool__search--ratings" value="1">
 					</div>
 					<button id="custom-user-tool__search--submit" class="custom-user-tool__search--submit">
 						Search User
@@ -239,34 +243,53 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 								'orderby'           => 'title',
 								'order'             => 'ASC',
 								'posts_per_page' 	=> -1,
+								'tax_query'			=> array(
+									array (
+										'taxonomy' => 'user_category',
+										'field' => 'ID',
+										'terms' => $shortcode_args['category'],
+									)
+								)
 							);
-
+	
 							$query = new WP_Query($args);
 
 							if( $query->have_posts(  ) ):
 								while( $query->have_posts(  ) ):
 									$query->the_post(); 
-									$my_id = esc_html(get_the_ID(  ));
-									$name = get_the_title( $my_id );
-									$dob = get_post_meta( $my_id,  'custom_user_dob', true );
-									$email = get_post_meta( $my_id,  'custom_user_email', true );
-									$skills = get_post_meta( $my_id,  'custom_user_skills', true );
-									$skills_array = explode( " ", $skills );
+									$current_post_id = esc_html(get_the_ID(  ));
+									$name = get_the_title( $current_post_id );
+									$dob = get_post_meta( $current_post_id,  'custom_user_dob', true );
+									$email = get_post_meta( $current_post_id,  'custom_user_email', true );
+									$skills = get_post_meta( $current_post_id,  'custom_user_skills', true );
+									$skills_array = explode( ",", $skills );
+									$ratings = get_post_meta( $current_post_id, 'custom_user_ratings', true );
+									$image = wp_get_attachment_image_src( get_post_thumbnail_id( $current_post_id ), 'single-post-thumbnail' );
 									?>
 									
-									<div class="custom-user-tool__list--item">
-										<h6 class="custom-user__name"><span>Name : </span><?php echo esc_html($name)?></h6>
-										<p class="custom-user__dob"><span>DOB : </span><?php echo esc_html($dob)?></p>
-										<p class="custom-user__email"><span>Email : </span><?php echo esc_html($email)?></p>
-										<div class="custom-user__skills">
-											<span>Skills : </span>
-											<ul>
-												<?php foreach($skills_array as $skill_name ){ ?>
-													<li><?php echo $skill_name ?></li>
-												<?php } ?>
-											</ul>
+									<a href="<?php echo esc_url(get_the_permalink($current_post_id)) ?>" class="custom-user-tool__list--link" data-dob="<?php echo esc_attr($dob)?>">
+										<div class="custom-user-tool__list--item">
+											<img src="<?php echo esc_url($image[0]); ?>" class="custom-user__avatar" alt="User Avatar">
+											<h6 class="custom-user__name"><span>Name : </span><?php echo esc_html($name)?></h6>
+											<p class="custom-user__dob"><span>DOB : </span><?php echo esc_html($dob)?></p>
+											<p class="custom-user__email"><span>Email : </span><?php echo esc_html($email)?></p>
+											<div class="custom-user__ratings">
+												<?php 
+													for($i = 0; $i< $ratings ;$i++){ ?>
+														<span>★</span>
+													<?php }
+												?>
+											</div>
+											<div class="custom-user__skills">
+												<span>Skills : </span>
+												<ul>
+													<?php foreach($skills_array as $skill_name ){ ?>
+														<li><?php echo $skill_name ?></li>
+													<?php } ?>
+												</ul>
+											</div>
 										</div>
-									</div>
+									</a>
 
 							<?php	endwhile;
 							endif;
@@ -281,7 +304,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 		public function custom_search_listing_data_callback(){
 
 			check_ajax_referer( 'ajax-nonce', 'nonce' );
-
+			
 			$meta_query = array('relation' => 'AND');
 			$args = array(
 				'post_type' 		=> "custom_user",
@@ -308,13 +331,33 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 
 			if (isset( $_GET['skills'] ) && !empty( $_GET['skills'] )) {
 				$custom_skills =  sanitize_text_field($_GET['skills']);
-				$args['meta_query'] = array(
-					'type'=>'CHAR',
+				$args['meta_query'][] = array(
 					'key' => 'custom_user_skills',
 					'compare' => '=',
 					'value' => $custom_skills,
 				);
 			}
+
+			if (isset( $_GET['ratings'] ) && !empty( $_GET['ratings'] )) {
+				$custom_ratings =  sanitize_text_field($_GET['ratings']);
+				$args['meta_query'][] = array(
+					'key' => 'custom_user_ratings',
+					'compare' => '=',
+					'value' => $custom_ratings,
+				);
+			}
+
+			if (isset( $_GET['dobfrom'] ) && !empty( $_GET['dobfrom'] ) && isset( $_GET['dobto'] ) && !empty( $_GET['dobto'] )) {
+				$dob_from =  sanitize_text_field($_GET['dobfrom']);
+				$dob_to =  sanitize_text_field($_GET['dobto']);
+				$args['meta_query'][] = array(
+					'key' 	=> 'custom_user_dob', 
+					'value' => array($dob_from, $dob_to),
+					'compare' => 'BETWEEN', 
+					'type' => 'DATE',
+				);
+			}
+
 
 			$query = new WP_Query($args);
 
@@ -322,33 +365,54 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 				?>
 				<div class="custom-user-tool__list">
 					<div class="custom-user-tool__list--wrapper">
-							<?php
-							while( $query->have_posts(  ) ):
-								$query->the_post(); 
-								$my_id = esc_html(get_the_ID(  ));
-								$name = get_the_title( $my_id );
-								$dob = get_post_meta( $my_id,  'custom_user_dob', true );
-								$email = get_post_meta( $my_id,  'custom_user_email', true );
-								$skills = get_post_meta( $my_id,  'custom_user_skills', true );
-								$skills_array = explode( " ", $skills );
-								?>
-								
-								<div class="custom-user-tool__list--item">
-									<h6 class="custom-user__name"><span>Name : </span><?php echo esc_html($name)?></h6>
-									<p class="custom-user__dob"><span>DOB : </span><?php echo esc_html($dob)?></p>
-									<p class="custom-user__email"><span>Email : </span><?php echo esc_html($email)?></p>
-									<div class="custom-user__skills">
-										<span>Skills : </span>
-										<ul>
-											<?php foreach($skills_array as $skill_name ){ ?>
-												<li><?php echo $skill_name ?></li>
-											<?php } ?>
-										</ul>
-									</div>
-								</div>
+						<?php 
+							$args = array(
+								'post_type' 		=> "custom_user",
+								'post_status'		=> 'publish',
+								'orderby'           => 'title',
+								'order'             => 'ASC',
+								'posts_per_page' 	=> -1,
+							);
 
-						<?php	endwhile;
-							wp_reset_postdata();
+							$query = new WP_Query($args);
+
+							if( $query->have_posts(  ) ):
+								while( $query->have_posts(  ) ):
+									$query->the_post(); 
+									$current_post_id = esc_html(get_the_ID(  ));
+									$name = get_the_title( $current_post_id );
+									$dob = get_post_meta( $current_post_id,  'custom_user_dob', true );
+									$email = get_post_meta( $current_post_id,  'custom_user_email', true );
+									$skills = get_post_meta( $current_post_id,  'custom_user_skills', true );
+									$skills_array = explode( " ", $skills );
+									$ratings = get_post_meta( $current_post_id, 'custom_user_ratings', true );
+									?>
+									
+									<a href="<?php echo esc_url(get_the_permalink($current_post_id)) ?>" class="custom-user-tool__list--link">
+										<div class="custom-user-tool__list--item">
+											<h6 class="custom-user__name"><span>Name : </span><?php echo esc_html($name)?></h6>
+											<p class="custom-user__dob"><span>DOB : </span><?php echo esc_html($dob)?></p>
+											<p class="custom-user__email"><span>Email : </span><?php echo esc_html($email)?></p>
+											<div class="custom-user__ratings">
+												<?php 
+													for($i = 0; $i< $ratings ;$i++){ ?>
+														<span>★</span>
+													<?php }
+												?>
+											</div>
+											<div class="custom-user__skills">
+												<span>Skills : </span>
+												<ul>
+													<?php foreach($skills_array as $skill_name ){ ?>
+														<li><?php echo $skill_name ?></li>
+													<?php } ?>
+												</ul>
+											</div>
+										</div>
+									</a>
+
+							<?php	endwhile;
+							endif;
 						?>
 					</div>
 				</div>
@@ -375,11 +439,12 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			$date_of_birth=( isset( $_POST['date_of_birth'] ) && !empty( $_POST['date_of_birth'] ) ) ? $_POST['date_of_birth'] :"";
 			$user_postal = ( isset( $_POST['user_postal'] ) && !empty( $_POST['user_postal'] ) ) ? $_POST['user_postal'] :"";
 			$user_hobbies = ( isset( $_POST['user_hobby'] ) && !empty( $_POST['user_hobby'] ) ) ? $_POST['user_hobby'] :"" ;
-			$user_skills = ( isset( $_POST['user_skill'] ) && !empty( $_POST['user_skill'] ) ) ? $_POST['user_skill'] :"" ;
+			$user_skills = ( isset( $_POST['custom_user_skill'] ) && !empty( $_POST['custom_user_skill'] ) ) ? $_POST['custom_user_skill'] :"" ;
 			$custom_user_cat = ( isset( $_POST['custom_user_cat'] ) && !empty( $_POST['custom_user_cat'] ) ) ? $_POST['custom_user_cat'] :"" ;
 			$multi_select_compone = ( isset( $_POST['states'] ) && !empty( $_POST['states'] ) ) ? $_POST['states'] :"" ;
+			
 
-			print_r($_POST);
+			$final_user_avatar = $user_avatar['image']['name'];
 
 			$my_cptpost_args = array(
 
@@ -400,8 +465,24 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 					'custom_multi_field'            => $multi_select_compone,
 				)	
 			);
-			$cpt_id = wp_insert_post( $my_cptpost_args );	
-			
+			$cpt_id = wp_insert_post( $my_cptpost_args );
+			if ($_FILES) {
+                foreach ($_FILES as $file => $array) {
+                    if ($_FILES[$file]['error'] !== UPLOAD_ERR_OK) {
+                        return "upload error : " . $_FILES[$file]['error'];
+                    }
+                    $attach_id = media_handle_upload($file, $cpt_id);
+                }
+            }
+            if ($attach_id > 0) {
+                //and if you want to set that image as Post then use:
+                update_post_meta($cpt_id, '_thumbnail_id', $attach_id);
+            }
+
+            $my_post1 = get_post($attach_id);
+            $my_post2 = get_post($cpt_id);
+            $my_post = array_merge($my_post1, $my_post2);
+	
 		}
 	}
 
