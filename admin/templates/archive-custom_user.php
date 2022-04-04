@@ -9,7 +9,14 @@
 */
 
 get_header();
-$cust_category = get_queried_object(  );
+
+if(get_queried_object(  )){
+    $cust_category = get_queried_object(  );
+    $cust_user_id = $cust_category->term_id ;
+} else {
+    $cust_user_id = "";
+}
+
 ?>
 
 <header class="entry-header alignwide">
@@ -17,7 +24,7 @@ $cust_category = get_queried_object(  );
 </header>
 <div class="custom_user_template--content">
     <?php
-       echo  do_shortcode('[custom_user_search_tool_list category='.$cust_category->term_id.']');
+       echo  do_shortcode('[custom_user_search_tool_list category='.$cust_user_id.']');
     ?>
 </div>
 

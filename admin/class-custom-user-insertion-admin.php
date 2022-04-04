@@ -91,7 +91,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 				'custom_user_skills'
 			);
 			register_setting('custom_user_skills', 'custom-user-admin-page__skill--list');
-			
+			register_setting('custom_user_skills', 'custom-user-admin-page__email');
 		}
 
 		/**
@@ -238,7 +238,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 			$first_name = get_post_meta( $post->ID,  'custom_user_first_name', true );
 			?>
 			<div class="custom_user_first_namefield--wrapper">
-				<input type="text" placeholder="First Name" value="<?php echo esc_html($first_name)?>" name="custom_user_first_namefield" id="custom_user_first_namefield" class="custom_user_first_namefield--text" require>
+				<input type="text" placeholder="First Name" value="<?php echo esc_attr($first_name)?>" name="custom_user_first_namefield" id="custom_user_first_namefield" class="custom_user_first_namefield--text" require>
 			</div>
 			<?php
 		}
@@ -247,7 +247,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 			$last_name = get_post_meta( $post->ID,  'custom_user_lastname_name', true );
 			?>
 			<div class="custom_user_lastname_namefield--wrapper">
-				<input type="text" placeholder="Last Name" value="<?php echo esc_html($last_name)?>" name="custom_user_lastname_namefield" id="custom_user_lastname_namefield" class="custom_user_lastname_namefield--text" require>
+				<input type="text" placeholder="Last Name" value="<?php echo esc_attr($last_name)?>" name="custom_user_lastname_namefield" id="custom_user_lastname_namefield" class="custom_user_lastname_namefield--text" require>
 			</div>
 			<?php
 		}
@@ -256,7 +256,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 			$email = get_post_meta( $post->ID,  'custom_user_email', true );
 			?>
 			<div class="custom_user_emailfield--wrapper">
-				<input type="email" placeholder="Email Adress" value="<?php echo esc_html($email)?>" name="custom_user_emailfield" id="custom_user_emailfield" class="custom_user_emailfield--text" require>
+				<input type="email" placeholder="Email Adress" value="<?php echo esc_attr($email)?>" name="custom_user_emailfield" id="custom_user_emailfield" class="custom_user_emailfield--text" require>
 			</div>
 			<?php
 		}
@@ -265,7 +265,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 			$dob = get_post_meta( $post->ID,  'custom_user_dob', true );
 			?>
 			<div class="custom_user_dobfield--wrapper">
-				<input type="date" id="custom_user_dobfield" value="<?php echo esc_html($dob)?>" name="custom_user_dobfield" class="user_input custom_user_dobfield--text" require>
+				<input type="date" id="custom_user_dobfield" value="<?php echo esc_attr($dob)?>" name="custom_user_dobfield" class="user_input custom_user_dobfield--text" require>
 			</div>
 			<?php
 		}
@@ -275,8 +275,8 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 			$add2 = get_post_meta( $post->ID,  'custom_user_address_two', true );
 			?>
 			<div class="custom_user_addressfield--wrapper">
-				<input type="text" id="custom_user_addressfield" value="<?php echo esc_html($add)?>" name="custom_user_addressfield" class="user_input custom_user_addressfield--text" placeholder="Adress 1">
-				<input type="text" id="custom_user_addressfieldtwo" value="<?php echo esc_html($add2)?>" name="custom_user_addressfieldtwo" class="user_input custom_user_addressfield--text" placeholder="Adress 2">
+				<input type="text" id="custom_user_addressfield" value="<?php echo esc_attr($add)?>" name="custom_user_addressfield" class="user_input custom_user_addressfield--text" placeholder="Adress 1">
+				<input type="text" id="custom_user_addressfieldtwo" value="<?php echo esc_attr($add2)?>" name="custom_user_addressfieldtwo" class="user_input custom_user_addressfield--text" placeholder="Adress 2">
 			</div>
 			<?php
 		}
@@ -285,7 +285,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 			$postal = get_post_meta( $post->ID,  'custom_user_postal', true );
 			?>
 			<div class="custom_user_postalfield--wrapper">
-				<input type="number" pattern="[0-9]*" value="<?php echo esc_html($postal)?>" placeholder="Postal Code" name="custom_user_postalfield" id="custom_user_postalfield" name="custom_user_postalfield" class="user_input custom_user_postalfield--text" >
+				<input type="number" pattern="[0-9]*" value="<?php echo esc_attr($postal)?>" placeholder="Postal Code" name="custom_user_postalfield" id="custom_user_postalfield" name="custom_user_postalfield" class="user_input custom_user_postalfield--text" >
 			</div>
 			<?php
 		}
@@ -295,7 +295,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 			?>
 			<label for="custom_user_skillsfield" class="custom_meta_notes">Please enter your new skills seperated by ","</label>
 			<div class="custom_user_skillsfield--wrapper">
-				<input id="custom_user_skillsfield" value="<?php echo esc_html($skills)?>" class="user_input custom_user_skillsfield--text" name="custom_user_skillsfield"/>
+				<input id="custom_user_skillsfield" value="<?php echo esc_attr($skills)?>" class="user_input custom_user_skillsfield--text" name="custom_user_skillsfield"/>
 			</div>
 			<?php
 		}
@@ -305,7 +305,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 			?>
 			<label for="custom_user_hobbyfield" class="custom_meta_notes">Please enter your new hobbies seperated by " "</label>
 			<div class="custom_user_hobbyfield--wrapper">
-				<input id="custom_user_hobbyfield" value="<?php echo esc_html($hobby)?>" class="user_input custom_user_hobbyfield--text" name="custom_user_hobbyfield"/>
+				<input id="custom_user_hobbyfield" value="<?php echo esc_attr($hobby)?>" class="user_input custom_user_hobbyfield--text" name="custom_user_hobbyfield"/>
 			</div>
 			<?php
 		}
@@ -314,7 +314,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 			$ratings = get_post_meta( $post->ID,  'custom_user_ratings', true );
 			?>
 			<div class="custom_user_ratingsfield--wrapper">
-				<input type="number" placeholder="Ratings for users" value="<?php echo esc_html($ratings)?>" name="custom_user_ratingsfield" id="custom_user_ratingsfield" class="custom_user_ratingsfield--text" max="5" min="1" require>
+				<input type="number" placeholder="Ratings for users" value="<?php echo esc_attr($ratings)?>" name="custom_user_ratingsfield" id="custom_user_ratingsfield" class="custom_user_ratingsfield--text" max="5" min="1" require>
 			</div>
 			<?php
 		}
@@ -365,8 +365,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 		}
 
 		
-		public function adding_custom_user_posts_columns_data($columns)
-		{
+		public function adding_custom_user_posts_columns_data($columns) {
 			global $post;
 			switch ($columns) {
 				case 'email':
@@ -378,30 +377,28 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 				case 'custom_user_dob':
 					echo esc_html__(get_post_meta($post->ID, 'custom_user_dob', true));
 					break;
-		}
+			}
 		}
 
-		public function cu_add_page_template_to_dropdown( $templates )
-		{
+		public function cu_add_page_template_to_dropdown( $templates ) {
 			$templates[plugin_dir_path( __FILE__ ) . 'templates/template-post-listing.php'] = __( 'Registration form template', 'text-domain' );
 
 			return $templates;
 		}
 
-		public function cu_change_page_template($template)
-		{
+		public function cu_change_page_template($template) {
 			if (is_page()) {
 				$meta = get_post_meta(get_the_ID());
 
-				if (!empty($meta['_wp_page_template'][0]) && $meta['_wp_page_template'][0] != $template) {
+				if (!empty($meta['_wp_page_template'][0]) && $meta['_wp_page_template'][0] !== $template) {
 					$template = $meta['_wp_page_template'][0];
 				}
 			} 
-			if(!is_single() && !is_page()){
+			if( !is_single() && !is_page() ){
 				$theme_files = 'archive-custom_user.php';
 				$exists_in_theme = locate_template($theme_files, false);
 				
-				if ( $exists_in_theme != '' ) {
+				if ( $exists_in_theme !== '' ) {
 				  return $exists_in_theme;
 				} else {
 				  return plugin_dir_path(__FILE__) . 'templates/archive-custom_user.php';

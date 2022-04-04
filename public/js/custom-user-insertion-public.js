@@ -5,7 +5,7 @@
     var dobfrom = $("#custom-user-tool__search--dobfrom").val();
     var dobto = $("#custom-user-tool__search--dobto").val();
     var skills = $("#custom-user-tool__search--skill").val();
-    var category = $("#custom-user-tool__search--category").val();
+    var category = $("#custom_user_cat_public").val();
     var ratings = $("#custom-user-tool__search--ratings").val();
 
     var data = {
@@ -117,6 +117,49 @@
       },
     });
   });
+
+  $(".custom-pagination .page-numbers:first-child").addClass("current");
+
+  $(document).on("click", ".custom-pagination .page-numbers", function () {
+    $(".custom-pagination .page-numbers").removeClass("current");
+    $(this).addClass("current");
+    var pageNo = parseInt($(this).attr("page-no"));
+    ajax_call(pageNo);
+  });
+
+  function ajax_call(pageNo) {
+    var keyWord = $("#custom-user-tool__search--keyword").val();
+    var dobfrom = $("#custom-user-tool__search--dobfrom").val();
+    var dobto = $("#custom-user-tool__search--dobto").val();
+    var skills = $("#custom-user-tool__search--skill").val();
+    var category = $("#custom_user_cat_public").val();
+    var ratings = $("#custom-user-tool__search--ratings").val();
+
+    var data = {
+      action: "custom_search_listing_data",
+      keyWord,
+      skills,
+      category,
+      ratings,
+      dobfrom,
+      dobto,
+      page_no: pageNo,
+      nonce: Custom_User_params.nonce,
+    };
+
+    $.ajax({
+      url: Custom_User_params.ajaxurl,
+      data: data,
+      success: function (response) {
+        console.log(response);
+        $(".custom-user-tool__list").replaceWith(response);
+        var currentPage = $(".custom-user-tool__list").attr("current_page");
+        $(".custom-pagination")
+          .find(".page-number" + currentPage)
+          .addClass("current");
+      },
+    });
+  }
 
   $(document).ready(function () {
     $("#custom_user_skill").select2();
