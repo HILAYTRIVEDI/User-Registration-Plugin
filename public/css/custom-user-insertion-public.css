@@ -228,6 +228,25 @@
   margin-left: 10px;
 }
 
+.custom-user-pagination-section{
+  text-align: center;
+}
+
+.custom-user-pagination-section .page-numbers{
+  padding: 10px;
+  background-color: #000;
+  color: #fff;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.custom-user-pagination-section .page-numbers:hover,.custom-user-pagination-section .page-numbers.current{
+  background-color: rgba(0, 0, 0, 0.311);
+  color: #000;
+}
+
+
 @media screen and (max-width: 1024px) {
   .custom-user-tool__container
     .custom-user-tool__list

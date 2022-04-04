@@ -51,6 +51,8 @@
   });
 
   $(document).ready(function () {
+    $(".custom-pagination .page-numbers:first-child").addClass("current");
+
     if ($("#custom-user-tool__search--form").length > 0) {
       var datePickerIdfrom = document.getElementById(
         "custom-user-tool__search--dobfrom"
@@ -117,8 +119,6 @@
       },
     });
   });
-
-  $(".custom-pagination .page-numbers:first-child").addClass("current");
 
   $(document).on("click", ".custom-pagination .page-numbers", function () {
     $(".custom-pagination .page-numbers").removeClass("current");
