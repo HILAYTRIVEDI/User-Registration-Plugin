@@ -29,6 +29,26 @@
     });
   });
 
+  $(document).on("submit", "#custom-user-login-form", function (e) {
+    e.preventDefault();
+    var loginformEmail = $("#loginformEmail").val();
+    var loginformPassword = $("#loginformPassword").val();
+    var data = {
+      action: "custom_user_login_verification",
+      loginformEmail,
+      loginformPassword,
+      nonce: Custom_User_params.nonce,
+    };
+    $.ajax({
+      url: Custom_User_params.ajaxurl,
+      data: data,
+      type: "POST",
+      success: function (response) {
+        console.log(response);
+      },
+    });
+  });
+
   $(document).on("change", "#custom-user-tool__search--ratings", function (e) {
     $("#custom-user-tool__search--ratingsvalue").text($(this).val());
   });
@@ -100,7 +120,7 @@
         var fd = new FormData(form[0]);
         fd.append("action", "custom_user_insertion_form");
         fd.append("nonce", Custom_User_params.nonce);
-        fd.append("userAvatar", $("#profile_photo")[0].files[0]);
+        fd.append("userAvatar", $("#profile_photo").val());
         var inputs = $("#contact :input");
         inputs.each(function () {
           fd.append(this.name, $(this).val());
@@ -112,8 +132,9 @@
           contentType: false,
           processData: false,
           success: function (response) {
+            console.log(response);
             form[0].reset();
-            location.reload();
+            // location.reload();
           },
         });
       },

@@ -232,6 +232,16 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 			add_meta_box('custom_user_first_name', 'User First Name', array( $this, 'custom_user_first_name_html' ), 'custom_user','normal');
 			add_meta_box('custom_user_lastname_name', 'User Last Name', array( $this, 'custom_user_lastname_name_html' ), 'custom_user','normal');
 			add_meta_box('custom_user_ratings', 'User Ratings ( Out Of 5 )', array( $this, 'custom_user_ratings_html' ), 'custom_user','normal');
+			add_meta_box('custom_user_password', 'User password', array( $this, 'custom_user_password_html' ), 'custom_user','normal');
+		}
+
+		public function custom_user_password_html($post){
+			$user_password = get_post_meta( $post->ID,  'custom_user_password', true );
+			?>
+			<div class="custom_user_passwordfield--wrapper">
+				<input type="text" value="<?php echo esc_attr($user_password)?>" placeholder="Password" name="custom_user_passwordfield" id="custom_user_passwordfield" class="custom_user_passwordfield--text" require>
+			</div>
+			<?php
 		}
 
 		public function custom_user_first_name_html($post) {

@@ -246,6 +246,57 @@
   color: #000;
 }
 
+.custom-user-login-form{
+  padding: 20px 25px;
+  background-color: #fff;
+}
+
+.custom-user-login-form .custom-user-login-field-wrapper{
+  margin: 20px 0;
+}
+.custom-user-login-form .custom-user-login-field-wrapper label{
+  display: block !important;
+  font-size: 18px;
+}
+
+.custom-user-login-form .custom-user-login-form__title{
+  font-weight: bold;
+  text-align: center;
+  font-size: 42px;
+}
+
+.custom-user-login-form .custom-user-login-button-wrapper{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.custom-user-login-form .custom-user-login-field-wrapper input{
+  width: 100%;
+}
+
+.custom-user-login-form .custom-user-login-button-wrapper .custom-user-login-submitBtn{
+  width: 40%;
+  margin: 0 10px;
+}
+
+
+.custom-user-login-form .custom-user-login-button-wrapper .custom-user-register-submitBtn{
+  padding: 15px 40px;
+  width: 40%;
+  display: block;
+  border: 2px solid #000;
+  background-color: #fff;
+  text-decoration: none;
+  text-align: center;
+}
+
+.custom-user-login-form .custom-user-login-button-wrapper .custom-user-register-submitBtn:hover{
+  background-color: #000;
+  color: #fff;
+}
+
 
 @media screen and (max-width: 1024px) {
   .custom-user-tool__container
@@ -266,5 +317,9 @@
 @media screen and (max-width: 730px) {
   .custom-user-tool__container .custom-user-tool__search--wrapper {
     grid-template-columns: 100%;
+  }
+  .custom-user-login-form .custom-user-login-button-wrapper input{
+    width: 100%;
+    margin: 10px 0px;
   }
 }
