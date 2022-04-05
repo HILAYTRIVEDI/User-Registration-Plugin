@@ -130,7 +130,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 							<label for="secondary_address">Secondary Address</label>
 							<input id="secondary_address" name="secondary_address" type="text" class="user_input">
 							<label for="user_postal">Please Enter Your Postal Code *</label>
-							<input id="user_postal" name="user_postal" type="number" class="required user_input">
+							<input id="user_postal" name="user_postal" min="1" type="number" class="required user_input">
 							<label for="date_of_birth">Date Of Birth *</label>
 							<input id="date_of_birth" name="date_of_birth" type="date" class="required">
 							<label for="user_hobby">What are your hoibbies ?* ( write your hobbies seperated by " " )</label>
@@ -707,54 +707,42 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			$output = curl_exec($ch);
 			curl_close($ch);
 
-			$wordpress_upload_dir = wp_upload_dir();
-
-			$profilepicture = $_FILES['userAvatar'];
-			$new_file_path = $wordpress_upload_dir['path'] . '/' . $profilepicture['name'];
-			$new_file_mime = mime_content_type( $profilepicture['tmp_name'] );
-			
-			if( empty( $profilepicture ) )
-				die( 'File is not selected.' );
-
-			if( $profilepicture['error'] )
-				die( $profilepicture['error'] );
-				
-			if( $profilepicture['size'] > wp_max_upload_size() )
-				die( 'It is too large than expected.' );
-				
-			if( !in_array( $new_file_mime, get_allowed_mime_types() ) )
-				die( 'WordPress doesn\'t allow this type of uploads.' );
-
-			while( file_exists( $new_file_path ) ) {
-				$i++;
-				$new_file_path = $wordpress_upload_dir['path'] . '/' . $i . '_' . $profilepicture['name'];
-			}
-
-			// If everything is OK
-			if( move_uploaded_file( $profilepicture['tmp_name'], $new_file_path ) ) {
-				
-
-				$upload_id = wp_insert_attachment( array(
-					'guid'           => $new_file_path, 
-					'post_mime_type' => $new_file_mime,
-					'post_title'     => preg_replace( '/\.[^.]+$/', '', $profilepicture['name'] ),
-					'post_content'   => '',
-					'post_status'    => 'inherit'
-				), $new_file_path );
-
-				// wp_generate_attachment_metadata() won't work if you do not include this file
-				require_once( ABSPATH . 'wp-admin/includes/image.php' );
-
-				// Generate and save the attachment metas into the database
-				wp_update_attachment_metadata( $upload_id, wp_generate_attachment_metadata( $upload_id, $new_file_path ) );
-
-				// Show the uploaded file in browser
-				wp_redirect( $wordpress_upload_dir['url'] . '/' . basename( $new_file_path ) );
-
-			}
 			$response = json_decode($output);
+
 			if($response->success){
+
+				print_r("Success");
+				$wordpress_upload_dir = wp_upload_dir();
+
+				$profilepicture = $_FILES['userAvatar'];
+				$new_file_path = $wordpress_upload_dir['path'] . '/' . $profilepicture['name'];
+				$new_file_mime = mime_content_type( $profilepicture['tmp_name'] );
+
+				// If everything is OK
+				if( move_uploaded_file( $profilepicture['tmp_name'], $new_file_path ) ) {
+					
+
+					$upload_id = wp_insert_attachment( array(
+						'guid'           => $new_file_path, 
+						'post_mime_type' => $new_file_mime,
+						'post_title'     => preg_replace( '/\.[^.]+$/', '', $profilepicture['name'] ),
+						'post_content'   => '',
+						'post_status'    => 'inherit'
+					), $new_file_path );
+
+					// wp_generate_attachment_metadata() won't work if you do not include this file
+					require_once( ABSPATH . 'wp-admin/includes/image.php' );
+
+					// Generate and save the attachment metas into the database
+					wp_update_attachment_metadata( $upload_id, wp_generate_attachment_metadata( $upload_id, $new_file_path ) );
+
+					// Show the uploaded file in browser
+					wp_redirect( $wordpress_upload_dir['url'] . '/' . basename( $new_file_path ) );
+
+				}
+				
 				wp_mail( $email, 'Please verify your account', 'Thanks for registration! click the link below to verify. <a href='.site_url("/").'login/?email='.$email.'&custom_user_password='.$custom_user_password.'&customuser_name='.rawurlencode($user_name).'&customname='.rawurlencode($name).'&surname='.rawurlencode($surname).'&date_of_birth='.$date_of_birth.'&address='.rawurlencode($address).'&secondary_address='.$secondary_address.'&user_postal='.$user_postal.'&user_skill='.rawurlencode($user_skills).'&user_hobby='.rawurlencode($user_hobbies).'&user_avatar='.$upload_id.'&custom_user_cat='.$final_custom_user_cat.'&nonce='.$user_nonce.'>verify email here</a>' );
+			
 			}
 			wp_die();
 		}

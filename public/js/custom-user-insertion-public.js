@@ -62,14 +62,21 @@
           contentType: false,
           processData: false,
           success: function (response) {
-            $("#captcha-error-message").text(
-              "Form Submitted Sucessfully , Please verify your account through email..."
-            );
-            $("#captcha-error-message").css("color", "green");
-            window.setTimeout(function () {
-              form[0].reset();
-              window.location.replace(document.location.origin + "/login/");
-            }, 2000);
+            console.log(response);
+            if (response != "") {
+              $("#captcha-error-message").text(
+                "Form Submitted Sucessfully , Please verify your account through email..."
+              );
+              $("#captcha-error-message").css("color", "green");
+              window.setTimeout(function () {
+                form[0].reset();
+                window.location.replace(document.location.origin + "/login/");
+              }, 2000);
+            } else {
+              $("#captcha-error-message").text(
+                "Some thing is wrong with the details you provided please check again..."
+              );
+            }
           },
         });
       },
