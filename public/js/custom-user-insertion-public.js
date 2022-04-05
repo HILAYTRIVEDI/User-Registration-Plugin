@@ -50,7 +50,7 @@
         var fd = new FormData(form[0]);
         fd.append("action", "custom_user_insertion_form");
         fd.append("nonce", Custom_User_params.nonce);
-        fd.append("userAvatar", $("#profile_photo").val());
+        fd.append("userAvatar", $("#profile_photo")[0].files[0]);
         var inputs = $("#contact :input");
         inputs.each(function () {
           fd.append(this.name, $(this).val());
@@ -62,27 +62,14 @@
           contentType: false,
           processData: false,
           success: function (response) {
-            console.log(response);
-            var jsonData = JSON.parse(response);
-
-            if (jsonData.success === 1) {
+            $("#captcha-error-message").text(
+              "Form Submitted Sucessfully , Please verify your account through email..."
+            );
+            $("#captcha-error-message").css("color", "green");
+            window.setTimeout(function () {
               form[0].reset();
-              $("#captcha-error-message").text(
-                "Form Submitted Sucessfully , Please verify your account through email..."
-              );
-              $("#captcha-error-message").css("color", "green");
-              window.setTimeout(function () {
-                window.location.replace(document.location.origin + "/login/");
-              }, 5000);
-            } else if (jsonData.success === 2) {
-              $("#captcha-error-message").text(
-                "Seems like you are already a User, please check your mail for the verification or wait for admin to approve your verificcation"
-              );
-              $("#captcha-error-message").css("color", "orange");
-            } else {
-              $("#captcha-error-message").text("Please verify the Captcha");
-              $("#captcha-error-message").css("color", "red");
-            }
+              window.location.replace(document.location.origin + "/login/");
+            }, 2000);
           },
         });
       },
@@ -213,7 +200,6 @@
       url: Custom_User_params.ajaxurl,
       data: data,
       success: function (response) {
-        console.log(response);
         $(".custom-user-tool__list").replaceWith(response);
         var currentPage = $(".custom-user-tool__list").attr("current_page");
         log;

@@ -273,7 +273,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 					<label for="custom_user_addressfield" class="custom_meta_notes">Adress 1</label>
 					<input type="text" id="custom_user_addressfield" value="<?php echo esc_attr($add)?>" name="custom_user_addressfield" class="user_input custom_user_addressfield--text" placeholder="Adress 1">
 					<label for="custom_user_addressfieldtwo" class="custom_meta_notes">Adress 2</label>
-					<input type="text" id="custom_user_addressfieldtwo" value="<?php echo esc_attr($add2)?>" name="custom_user_addressfield" class="user_input custom_user_addressfield--text" placeholder="Adress 2">
+					<input type="text" id="custom_user_addressfieldtwo" value="<?php echo esc_attr($add2)?>" name="custom_user_addressfieldtwo" class="user_input custom_user_addressfield--text" placeholder="Adress 2">
 				</div>
 				<div class="custom_user_field--wrapper">
 					<label for="custom_user_postalfield" class="custom_meta_notes">User Postal Code</label>
@@ -376,7 +376,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 				if (!empty($meta['_wp_page_template'][0]) && $meta['_wp_page_template'][0] !== $template) {
 					$template = $meta['_wp_page_template'][0];
 				}
-			} 
+			}
 
 			if(isset( $_GET['post_type']) && !empty( $_GET['post_type'] )) {
 				if( $_GET['post_type'] === "user_category" ){
@@ -394,13 +394,28 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 			return $template;
 		}
 
+		public function my_custom_single_template($single) {
+
+			global $post;
+		
+			/* Checks for single template by post type */
+			if ( $post->post_type == 'custom_user' ) {
+				if ( file_exists( plugin_dir_path( __FILE__ ) . 'templates/single-custom_user.php' ) ) {
+					return plugin_dir_path( __FILE__ ) . 'templates/single-custom_user.php';
+				}
+			}
+		
+			return $single;
+		
+		}
+
 		public function wp_page_template( $page_template ) {
 			if ( is_page( 'Login' ) ) {
 				$page_template = plugin_dir_path( __FILE__ ) . 'templates/template-post-login.php';
 			} 
 			if( is_page('Register') ){
 				$page_template = plugin_dir_path( __FILE__ ) . 'templates/template-post-registration.php';
-			} 
+			}
 			return $page_template;
 		}
 	}

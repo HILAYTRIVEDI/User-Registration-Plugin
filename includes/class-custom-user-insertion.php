@@ -170,6 +170,8 @@ class Custom_User_Insertion {
 		$this->loader->add_filter( 'template_include', $plugin_admin, 'cu_change_page_template');
 		$this->loader->add_filter( 'manage_custom_user_posts_columns', $plugin_admin, 'manage_custom_user_posts_columns');
 		$this->loader->add_filter( 'page_template', $plugin_admin, 'wp_page_template' );
+		$this->loader->add_filter('single_template', $plugin_admin, 'my_custom_single_template');
+
 
 	}
 
@@ -184,6 +186,7 @@ class Custom_User_Insertion {
 
 		$plugin_public = new Custom_User_Insertion_Public( $this->get_plugin_name(), $this->get_version() );
 
+		$this->loader->add_action(	'init', $plugin_public , 'create_avatar_file_dir');
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 		$this->loader->add_action( 'wp_ajax_custom_search_listing_data', $plugin_public,'custom_search_listing_data_callback');

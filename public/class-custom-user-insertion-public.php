@@ -388,12 +388,13 @@ if( !class_exists('Custom_User_Insertion_Public') ){
             $surname=( isset( $_GET['surname'] ) && !empty( $_GET['surname'] ) ) ? sanitize_text_field($_GET['surname']) :"";
             $email=( isset( $_GET['email'] ) && !empty( $_GET['email'] ) ) ? sanitize_text_field($_GET['email']) :"";
             $address=( isset( $_GET['address'] ) && !empty( $_GET['address'] ) ) ? sanitize_text_field($_GET['address']) :"";
-            $date_of_birth=( isset( $_GET['date_of_birth'] ) && !empty( $_GET['date_of_birth'] ) ) ? sanitize_text_field($_GET['date_of_birth']) :"";
+            $secondary_address=( isset( $_GET['secondary_address'] ) && !empty( $_GET['secondary_address'] ) ) ? sanitize_text_field($_GET['secondary_address']) :"";
+			$date_of_birth=( isset( $_GET['date_of_birth'] ) && !empty( $_GET['date_of_birth'] ) ) ? sanitize_text_field($_GET['date_of_birth']) :"";
             $user_postal = ( isset( $_GET['user_postal'] ) && !empty( $_GET['user_postal'] ) ) ? sanitize_text_field($_GET['user_postal']) :"";
             $user_hobbies = ( isset( $_GET['user_hobby'] ) && !empty( $_GET['user_hobby'] ) ) ? sanitize_text_field($_GET['user_hobby']) :"" ;
             $user_skills = ( isset( $_GET['user_skill'] ) && !empty( $_GET['user_skill'] ) ) ? sanitize_text_field($_GET['user_skill']) :"" ;
             $custom_user_cat = ( isset( $_GET['custom_user_cat'] ) && !empty( $_GET['custom_user_cat'] ) ) ? $_GET['custom_user_cat'] :"" ;
-			// $user_avatar=( isset( $_GET['user_avatar'] ) && !empty( $_GET['user_avatar'] ) ) ? sanitize_text_field($_GET['user_avatar']) :"";
+			$attachment_id=( isset( $_GET['user_avatar'] ) && !empty( $_GET['user_avatar'] ) ) ? sanitize_text_field($_GET['user_avatar']) :"";
 			$custom_user_password = ( isset( $_GET['custom_user_password'] ) && !empty( $_GET['custom_user_password'] ) ) ? $_GET['custom_user_password'] :"" ;
 
 			$args = array(
@@ -424,6 +425,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 						'custom_user_email'             => $email,
 						'custom_user_dob'               => $date_of_birth,
 						'custom_user_address'           => $address,
+						'custom_user_address_two'		=> $secondary_address,
 						'custom_user_postal'            => $user_postal,
 						'custom_user_skills'            => $user_skills,
 						'custom_user_hobby'             => $user_hobbies,
@@ -431,8 +433,10 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 					)   
 				);
 				$cpt_id = wp_insert_post( $my_cptpost_args );
-	
+
 				if ($cpt_id !== 0) {
+					set_post_thumbnail($cpt_id,$attachment_id);
+	
 					$custom_admin_mail = get_option( "custom-user-admin-page__email" );
 					wp_mail( $custom_admin_mail, 'New User Inquiry', 'New user has been registered! click the link below to verify the user. <a href='.site_url("/").'?post_type=user_category&email='.$email.'&custom_user_password='.$custom_user_password.'&registered_user_id='.$cpt_id.'&nonce='.$_GET['nonce'].'>verify user here</a>' ); 
 				}
@@ -641,6 +645,12 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			wp_die();
 		}
 
+		public function create_avatar_file_dir(){
+            $upload_dir = wp_upload_dir();
+            $dirname    = $upload_dir['basedir'] . '/custom-user-insertion';
+            if(!file_exists( $dirname )) wp_mkdir_p( $dirname );
+        }
+
 		public function custom_user_insertion_form_callback(){
 
 			check_ajax_referer( 'ajax-nonce', 'nonce' );
@@ -650,7 +660,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			$name=( isset( $_POST['name'] ) && !empty( $_POST['name'] ) ) ? sanitize_text_field($_POST['name']) :""; 
 			$surname=( isset( $_POST['surname'] ) && !empty( $_POST['surname'] ) ) ? sanitize_text_field($_POST['surname']) :"";
 			$email=( isset( $_POST['email'] ) && !empty( $_POST['email'] ) ) ? sanitize_text_field($_POST['email']) :"";
-			// $user_avatar=( isset( $_POST['userAvatar'] ) && !empty( $_POST['userAvatar'] ) ) ? $_POST['userAvatar'] :"";
+			$user_avatar=( isset( $_FILES['userAvatar'] ) && !empty( $_FILES['userAvatar'] ) ) ? $_FILES['userAvatar'] :"";
 			$address=( isset( $_POST['address'] ) && !empty( $_POST['address'] ) ) ? sanitize_text_field($_POST['address']) :"";
 			$secondary_address=( isset( $_POST['secondary_address'] ) && !empty( $_POST['secondary_address'] ) ) ? sanitize_text_field($_POST['secondary_address']) :"";
 			$date_of_birth=( isset( $_POST['date_of_birth'] ) && !empty( $_POST['date_of_birth'] ) ) ? sanitize_text_field($_POST['date_of_birth']) :"";
@@ -690,13 +700,54 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			$output = curl_exec($ch);
 			curl_close($ch);
 
-			$response = json_decode($output);
+			$wordpress_upload_dir = wp_upload_dir();
 
-			if($response->success && $count_of_Results == 0){
-				wp_mail( $email, 'Please verify your account', 'Thanks for registration! click the link below to verify. <a href='.site_url("/").'login/?email='.$email.'&custom_user_password='.$custom_user_password.'&customuser_name='.rawurlencode($user_name).'&customname='.rawurlencode($name).'&surname='.rawurlencode($surname).'&date_of_birth='.$date_of_birth.'&address='.rawurlencode($address).'&user_postal='.$user_postal.'&user_skill='.rawurlencode($user_skills).'&user_hobby='.rawurlencode($user_hobbies).'&custom_user_cat='.$final_custom_user_cat.'&nonce='.$user_nonce.'>verify email here</a>' );
-				echo json_encode(array('success' => 1)); 
-			} else {
-				echo json_encode(array('success' => 0));
+			$profilepicture = $_FILES['userAvatar'];
+			$new_file_path = $wordpress_upload_dir['path'] . '/' . $profilepicture['name'];
+			$new_file_mime = mime_content_type( $profilepicture['tmp_name'] );
+			
+			if( empty( $profilepicture ) )
+				die( 'File is not selected.' );
+
+			if( $profilepicture['error'] )
+				die( $profilepicture['error'] );
+				
+			if( $profilepicture['size'] > wp_max_upload_size() )
+				die( 'It is too large than expected.' );
+				
+			if( !in_array( $new_file_mime, get_allowed_mime_types() ) )
+				die( 'WordPress doesn\'t allow this type of uploads.' );
+
+			while( file_exists( $new_file_path ) ) {
+				$i++;
+				$new_file_path = $wordpress_upload_dir['path'] . '/' . $i . '_' . $profilepicture['name'];
+			}
+
+			// If everything is OK
+			if( move_uploaded_file( $profilepicture['tmp_name'], $new_file_path ) ) {
+				
+
+				$upload_id = wp_insert_attachment( array(
+					'guid'           => $new_file_path, 
+					'post_mime_type' => $new_file_mime,
+					'post_title'     => preg_replace( '/\.[^.]+$/', '', $profilepicture['name'] ),
+					'post_content'   => '',
+					'post_status'    => 'inherit'
+				), $new_file_path );
+
+				// wp_generate_attachment_metadata() won't work if you do not include this file
+				require_once( ABSPATH . 'wp-admin/includes/image.php' );
+
+				// Generate and save the attachment metas into the database
+				wp_update_attachment_metadata( $upload_id, wp_generate_attachment_metadata( $upload_id, $new_file_path ) );
+
+				// Show the uploaded file in browser
+				wp_redirect( $wordpress_upload_dir['url'] . '/' . basename( $new_file_path ) );
+
+			}
+			$response = json_decode($output);
+			if($response->success){
+				wp_mail( $email, 'Please verify your account', 'Thanks for registration! click the link below to verify. <a href='.site_url("/").'login/?email='.$email.'&custom_user_password='.$custom_user_password.'&customuser_name='.rawurlencode($user_name).'&customname='.rawurlencode($name).'&surname='.rawurlencode($surname).'&date_of_birth='.$date_of_birth.'&address='.rawurlencode($address).'&secondary_address='.$secondary_address.'&user_postal='.$user_postal.'&user_skill='.rawurlencode($user_skills).'&user_hobby='.rawurlencode($user_hobbies).'&user_avatar='.$upload_id.'&custom_user_cat='.$final_custom_user_cat.'&nonce='.$user_nonce.'>verify email here</a>' );
 			}
 			wp_die();
 		}
