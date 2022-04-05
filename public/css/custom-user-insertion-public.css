@@ -156,7 +156,7 @@
   .custom-user-tool__list--wrapper
   .custom-user-tool__list--item
   h6 {
-  margin-bottom: 10px;
+  margin: 15px 0px;
 }
 
 .custom-user-tool__container
@@ -189,6 +189,7 @@
   .custom-user-tool__list--item .custom-user__ratings p{
     color: #000;
     display: block;
+    margin-right: 10px;
   }
 
 .custom-user-tool__container
@@ -366,13 +367,15 @@
   padding: 0 30px;
   display: flex;
   align-items: center;
+  background-position: center center;
+  background-size: cover;
 }
 
 .cust-user-single__wrapper .cust-user-single__banner:after{
   position: absolute;
   content: "";
   background-color: #000;
-  opacity: 0.4;
+  opacity: 0.7;
   top: 0;
   bottom: 0;
   left: 0;
@@ -397,7 +400,7 @@
 }
 
 .cust-user-single__wrapper .cust-user-single__details .cust-user-single__details--list li{
-  padding: 10px 0;
+  padding: 10px;
   font-size: 22px;
   color: #2c2c2c;
 }

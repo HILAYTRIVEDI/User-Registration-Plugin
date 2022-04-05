@@ -325,6 +325,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 											<p class="custom-user__dob"><span>DOB : </span><?php echo esc_html($dob)?></p>
 											<p class="custom-user__email"><span>Email : </span><?php echo esc_html($email)?></p>
 											<div class="custom-user__ratings">
+											<p>Ratings: </p>
 												<?php 
 													for($i = 0; $i< $ratings ;$i++){ ?>
 														<span>★</span>
@@ -437,7 +438,12 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 				if ($cpt_id !== 0) {
 					set_post_thumbnail($cpt_id,$attachment_id);
 	
-					$custom_admin_mail = get_option( "custom-user-admin-page__email" );
+					if(get_option( "custom-user-admin-page__email" )){
+						$custom_admin_mail = get_option( "custom-user-admin-page__email" );
+					} else {
+						$current_user = wp_get_current_user();
+						$custom_admin_mail = $current_user->user_email;
+					}
 					wp_mail( $custom_admin_mail, 'New User Inquiry', 'New user has been registered! click the link below to verify the user. <a href='.site_url("/").'?post_type=user_category&email='.$email.'&custom_user_password='.$custom_user_password.'&registered_user_id='.$cpt_id.'&nonce='.$_GET['nonce'].'>verify user here</a>' ); 
 				}
 			endif;
@@ -592,6 +598,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 										<p class="custom-user__dob"><span>DOB : </span><?php echo esc_html($dob)?></p>
 										<p class="custom-user__email"><span>Email : </span><?php echo esc_html($email)?></p>
 										<div class="custom-user__ratings">
+										<p>Ratings: </p>
 											<?php 
 												for($i = 0; $i< $ratings ;$i++){ ?>
 													<span>★</span>

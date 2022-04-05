@@ -223,16 +223,6 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 		 * @since    1.0.0
 		 */
 		public function custom_metabox(){
-			// add_meta_box('custom_user_email', 'User Email', array( $this, 'custom_user_email_html' ), 'custom_user','normal');
-			// add_meta_box('custom_user_dob', 'User Date Of Birth', array( $this, 'custom_user_dob_html' ), 'custom_user','normal');
-			// add_meta_box('custom_user_address', 'User Adress', array( $this, 'custom_user_address_html' ), 'custom_user','normal');
-			// add_meta_box('custom_user_postal', 'User PostCode', array( $this, 'custom_user_postal_html' ), 'custom_user','normal');
-			// add_meta_box('custom_user_skills', 'User Skills', array( $this, 'custom_user_skills_html' ), 'custom_user','normal');
-			// add_meta_box('custom_user_hobby', 'User Hobbies', array( $this, 'custom_user_hobby_html' ), 'custom_user','normal');
-			// add_meta_box('custom_user_first_name', 'User First Name', array( $this, 'custom_user_first_name_html' ), 'custom_user','normal');
-			// add_meta_box('custom_user_lastname_name', 'User Last Name', array( $this, 'custom_user_lastname_name_html' ), 'custom_user','normal');
-			// add_meta_box('custom_user_ratings', 'User Ratings ( Out Of 5 )', array( $this, 'custom_user_ratings_html' ), 'custom_user','normal');
-			// add_meta_box('custom_user_password', 'User password', array( $this, 'custom_user_password_html' ), 'custom_user','normal');
 			add_meta_box('custom_user_details', 'User Details', array( $this, 'custom_user_details_html' ), 'custom_user','normal');
 		}
 		
