@@ -223,140 +223,112 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 		 * @since    1.0.0
 		 */
 		public function custom_metabox(){
-			add_meta_box('custom_user_email', 'User Email', array( $this, 'custom_user_email_html' ), 'custom_user','normal');
-			add_meta_box('custom_user_dob', 'User Date Of Birth', array( $this, 'custom_user_dob_html' ), 'custom_user','normal');
-			add_meta_box('custom_user_address', 'User Adress', array( $this, 'custom_user_address_html' ), 'custom_user','normal');
-			add_meta_box('custom_user_postal', 'User PostCode', array( $this, 'custom_user_postal_html' ), 'custom_user','normal');
-			add_meta_box('custom_user_skills', 'User Skills', array( $this, 'custom_user_skills_html' ), 'custom_user','normal');
-			add_meta_box('custom_user_hobby', 'User Hobbies', array( $this, 'custom_user_hobby_html' ), 'custom_user','normal');
-			add_meta_box('custom_user_first_name', 'User First Name', array( $this, 'custom_user_first_name_html' ), 'custom_user','normal');
-			add_meta_box('custom_user_lastname_name', 'User Last Name', array( $this, 'custom_user_lastname_name_html' ), 'custom_user','normal');
-			add_meta_box('custom_user_ratings', 'User Ratings ( Out Of 5 )', array( $this, 'custom_user_ratings_html' ), 'custom_user','normal');
-			add_meta_box('custom_user_password', 'User password', array( $this, 'custom_user_password_html' ), 'custom_user','normal');
+			// add_meta_box('custom_user_email', 'User Email', array( $this, 'custom_user_email_html' ), 'custom_user','normal');
+			// add_meta_box('custom_user_dob', 'User Date Of Birth', array( $this, 'custom_user_dob_html' ), 'custom_user','normal');
+			// add_meta_box('custom_user_address', 'User Adress', array( $this, 'custom_user_address_html' ), 'custom_user','normal');
+			// add_meta_box('custom_user_postal', 'User PostCode', array( $this, 'custom_user_postal_html' ), 'custom_user','normal');
+			// add_meta_box('custom_user_skills', 'User Skills', array( $this, 'custom_user_skills_html' ), 'custom_user','normal');
+			// add_meta_box('custom_user_hobby', 'User Hobbies', array( $this, 'custom_user_hobby_html' ), 'custom_user','normal');
+			// add_meta_box('custom_user_first_name', 'User First Name', array( $this, 'custom_user_first_name_html' ), 'custom_user','normal');
+			// add_meta_box('custom_user_lastname_name', 'User Last Name', array( $this, 'custom_user_lastname_name_html' ), 'custom_user','normal');
+			// add_meta_box('custom_user_ratings', 'User Ratings ( Out Of 5 )', array( $this, 'custom_user_ratings_html' ), 'custom_user','normal');
+			// add_meta_box('custom_user_password', 'User password', array( $this, 'custom_user_password_html' ), 'custom_user','normal');
+			add_meta_box('custom_user_details', 'User Details', array( $this, 'custom_user_details_html' ), 'custom_user','normal');
 		}
-
-		public function custom_user_password_html($post){
+		
+		public function custom_user_details_html($post){
 			$user_password = get_post_meta( $post->ID,  'custom_user_password', true );
-			?>
-			<div class="custom_user_passwordfield--wrapper">
-				<input type="text" value="<?php echo esc_attr($user_password)?>" placeholder="Password" name="custom_user_passwordfield" id="custom_user_passwordfield" class="custom_user_passwordfield--text" require>
-			</div>
-			<?php
-		}
-
-		public function custom_user_first_name_html($post) {
 			$first_name = get_post_meta( $post->ID,  'custom_user_first_name', true );
-			?>
-			<div class="custom_user_first_namefield--wrapper">
-				<input type="text" placeholder="First Name" value="<?php echo esc_attr($first_name)?>" name="custom_user_first_namefield" id="custom_user_first_namefield" class="custom_user_first_namefield--text" require>
-			</div>
-			<?php
-		}
-
-		public function custom_user_lastname_name_html($post) {
 			$last_name = get_post_meta( $post->ID,  'custom_user_lastname_name', true );
-			?>
-			<div class="custom_user_lastname_namefield--wrapper">
-				<input type="text" placeholder="Last Name" value="<?php echo esc_attr($last_name)?>" name="custom_user_lastname_namefield" id="custom_user_lastname_namefield" class="custom_user_lastname_namefield--text" require>
-			</div>
-			<?php
-		}
-
-		public function custom_user_email_html($post) {
 			$email = get_post_meta( $post->ID,  'custom_user_email', true );
-			?>
-			<div class="custom_user_emailfield--wrapper">
-				<input type="email" placeholder="Email Adress" value="<?php echo esc_attr($email)?>" name="custom_user_emailfield" id="custom_user_emailfield" class="custom_user_emailfield--text" require>
-			</div>
-			<?php
-		}
-
-		public function custom_user_dob_html($post) {
 			$dob = get_post_meta( $post->ID,  'custom_user_dob', true );
-			?>
-			<div class="custom_user_dobfield--wrapper">
-				<input type="date" id="custom_user_dobfield" value="<?php echo esc_attr($dob)?>" name="custom_user_dobfield" class="user_input custom_user_dobfield--text" require>
-			</div>
-			<?php
-		}
-
-		public function custom_user_address_html($post) {
 			$add = get_post_meta( $post->ID,  'custom_user_address', true );
 			$add2 = get_post_meta( $post->ID,  'custom_user_address_two', true );
-			?>
-			<div class="custom_user_addressfield--wrapper">
-				<input type="text" id="custom_user_addressfield" value="<?php echo esc_attr($add)?>" name="custom_user_addressfield" class="user_input custom_user_addressfield--text" placeholder="Adress 1">
-				<input type="text" id="custom_user_addressfieldtwo" value="<?php echo esc_attr($add2)?>" name="custom_user_addressfieldtwo" class="user_input custom_user_addressfield--text" placeholder="Adress 2">
-			</div>
-			<?php
-		}
-
-		public function custom_user_postal_html($post) {
 			$postal = get_post_meta( $post->ID,  'custom_user_postal', true );
-			?>
-			<div class="custom_user_postalfield--wrapper">
-				<input type="number" pattern="[0-9]*" value="<?php echo esc_attr($postal)?>" placeholder="Postal Code" name="custom_user_postalfield" id="custom_user_postalfield" name="custom_user_postalfield" class="user_input custom_user_postalfield--text" >
-			</div>
-			<?php
-		}
-
-		public function custom_user_skills_html($post) {
 			$skills = get_post_meta( $post->ID,  'custom_user_skills', true );
-			?>
-			<label for="custom_user_skillsfield" class="custom_meta_notes">Please enter your new skills seperated by ","</label>
-			<div class="custom_user_skillsfield--wrapper">
-				<input id="custom_user_skillsfield" value="<?php echo esc_attr($skills)?>" class="user_input custom_user_skillsfield--text" name="custom_user_skillsfield"/>
-			</div>
-			<?php
-		}
-
-		public function custom_user_hobby_html($post) {
 			$hobby = get_post_meta( $post->ID,  'custom_user_hobby', true );
-			?>
-			<label for="custom_user_hobbyfield" class="custom_meta_notes">Please enter your new hobbies seperated by " "</label>
-			<div class="custom_user_hobbyfield--wrapper">
-				<input id="custom_user_hobbyfield" value="<?php echo esc_attr($hobby)?>" class="user_input custom_user_hobbyfield--text" name="custom_user_hobbyfield"/>
-			</div>
-			<?php
-		}
-
-		public function custom_user_ratings_html($post) {
 			$ratings = get_post_meta( $post->ID,  'custom_user_ratings', true );
 			?>
-			<div class="custom_user_ratingsfield--wrapper">
-				<input type="number" placeholder="Ratings for users" value="<?php echo esc_attr($ratings)?>" name="custom_user_ratingsfield" id="custom_user_ratingsfield" class="custom_user_ratingsfield--text" max="5" min="1" require>
-			</div>
+				<div class="custom_user_field--wrapper">
+					<label for="custom_user_passwordfield" class="custom_meta_notes">User Password</label>
+					<input type="text" value="<?php echo esc_attr($user_password)?>" placeholder="Password" name="custom_user_passwordfield" id="custom_user_passwordfield" class="custom_user_passwordfield--text" require>
+				</div>
+				<div class="custom_user_field--wrapper">
+					<label for="custom_user_first_namefield" class="custom_meta_notes">First Name</label>
+					<input type="text" placeholder="First Name" value="<?php echo esc_attr($first_name)?>" name="custom_user_first_namefield" id="custom_user_first_namefield" class="custom_user_first_namefield--text" require>
+				</div>
+				<div class="custom_user_field--wrapper">
+					<label for="custom_user_lastname_namefield" class="custom_meta_notes">Last Name</label>
+					<input type="text" placeholder="Last Name" value="<?php echo esc_attr($last_name)?>" name="custom_user_lastname_namefield" id="custom_user_lastname_namefield" class="custom_user_lastname_namefield--text" require>
+				</div>
+				<div class="custom_user_field--wrapper">
+					<label for="custom_user_emailfield" class="custom_meta_notes">User Email</label>
+					<input type="email" placeholder="Email Adress" value="<?php echo esc_attr($email)?>" name="custom_user_emailfield" id="custom_user_emailfield" class="custom_user_emailfield--text" require>
+				</div>
+				<div class="custom_user_field--wrapper">
+					<label for="custom_user_dobfield" class="custom_meta_notes">User DOB</label>
+					<input type="date" id="custom_user_dobfield" value="<?php echo esc_attr($dob)?>" name="custom_user_dobfield" class="user_input custom_user_dobfield--text" require>
+				</div>
+				<div class="custom_user_field--wrapper">
+					<label for="custom_user_addressfield" class="custom_meta_notes">Adress 1</label>
+					<input type="text" id="custom_user_addressfield" value="<?php echo esc_attr($add)?>" name="custom_user_addressfield" class="user_input custom_user_addressfield--text" placeholder="Adress 1">
+					<label for="custom_user_addressfieldtwo" class="custom_meta_notes">Adress 2</label>
+					<input type="text" id="custom_user_addressfieldtwo" value="<?php echo esc_attr($add2)?>" name="custom_user_addressfield" class="user_input custom_user_addressfield--text" placeholder="Adress 2">
+				</div>
+				<div class="custom_user_field--wrapper">
+					<label for="custom_user_postalfield" class="custom_meta_notes">User Postal Code</label>
+					<input type="number" pattern="[0-9]*" value="<?php echo esc_attr($postal)?>" placeholder="Postal Code" name="custom_user_postalfield" id="custom_user_postalfield" name="custom_user_postalfield" class="user_input custom_user_postalfield--text" >
+				</div>
+				<div class="custom_user_field--wrapper">
+					<label for="custom_user_skillsfield" class="custom_meta_notes">Please enter your new skills seperated by ","</label>
+					<input id="custom_user_skillsfield" value="<?php echo esc_attr($skills)?>" class="user_input custom_user_skillsfield--text" name="custom_user_skillsfield"/>
+				</div>
+				<div class="custom_user_field--wrapper">
+					<label for="custom_user_hobbyfield" class="custom_meta_notes">Please enter your new hobbies seperated by " "</label>
+					<input id="custom_user_hobbyfield" value="<?php echo esc_attr($hobby)?>" class="user_input custom_user_hobbyfield--text" name="custom_user_hobbyfield"/>
+				</div>
+				<div class="custom_user_field--wrapper">
+					<label for="custom_user_ratingsfield" class="custom_meta_notes">User Ratings</label>
+					<input type="number" placeholder="Ratings for users" value="<?php echo esc_attr($ratings)?>" name="custom_user_ratingsfield" id="custom_user_ratingsfield" class="custom_user_ratingsfield--text" max="5" min="1" require>
+				</div>
 			<?php
+			wp_nonce_field( 'create_user_details_action', 'create_user_details', );
 		}
 
-		
 		public function custom_meta_box_saver($post_id){
 
-			if(isset($_POST["custom_user_emailfield"])):
-				update_post_meta($post_id, 'custom_user_email', sanitize_email ( $_POST["custom_user_emailfield"]) );
-			endif;
-			if(isset($_POST["custom_user_dobfield"])):
-				update_post_meta($post_id, 'custom_user_dob', sanitize_text_field( $_POST["custom_user_dobfield"]) );
-			endif;
-			if(isset($_POST["custom_user_addressfield"])):
-				update_post_meta($post_id, 'custom_user_address', sanitize_text_field( $_POST["custom_user_addressfield"]) );
-			endif;
-			if(isset($_POST["custom_user_addressfieldtwo"])):
-				update_post_meta($post_id, 'custom_user_address_two', sanitize_text_field( $_POST["custom_user_addressfieldtwo"]) );
-			endif;
-			if(isset($_POST["custom_user_postalfield"])):
-				update_post_meta($post_id, 'custom_user_postal', sanitize_text_field( $_POST["custom_user_postalfield"]) );
-			endif;
-			if(isset($_POST["custom_user_skillsfield"])):
-				update_post_meta($post_id, 'custom_user_skills', sanitize_text_field($_POST["custom_user_skillsfield"]) );
-			endif;
-			if(isset($_POST["custom_user_hobbyfield"])):
-				update_post_meta($post_id, 'custom_user_hobby', sanitize_text_field( $_POST["custom_user_hobbyfield"]) );
-			endif;
-			if(isset($_POST["custom_user_ratingsfield"])):
-				update_post_meta($post_id, 'custom_user_ratings', sanitize_text_field( $_POST["custom_user_ratingsfield"]) );
-			endif;
-			
+			if(isset($_POST) && !empty($_POST)){
+				if ( ! isset( $_POST['create_user_details'] ) || ! wp_verify_nonce( $_POST['create_user_details'], 'create_user_details_action' )) {
+					exit;
+				} else {
+				
+					if(isset($_POST["custom_user_emailfield"])):
+						update_post_meta($post_id, 'custom_user_email', sanitize_email ( $_POST["custom_user_emailfield"]) );
+					endif;
+					if(isset($_POST["custom_user_dobfield"])):
+						update_post_meta($post_id, 'custom_user_dob', sanitize_text_field( $_POST["custom_user_dobfield"]) );
+					endif;
+					if(isset($_POST["custom_user_addressfield"])):
+						update_post_meta($post_id, 'custom_user_address', sanitize_text_field( $_POST["custom_user_addressfield"]) );
+					endif;
+					if(isset($_POST["custom_user_addressfieldtwo"])):
+						update_post_meta($post_id, 'custom_user_address_two', sanitize_text_field( $_POST["custom_user_addressfieldtwo"]) );
+					endif;
+					if(isset($_POST["custom_user_postalfield"])):
+						update_post_meta($post_id, 'custom_user_postal', sanitize_text_field( $_POST["custom_user_postalfield"]) );
+					endif;
+					if(isset($_POST["custom_user_skillsfield"])):
+						update_post_meta($post_id, 'custom_user_skills', sanitize_text_field($_POST["custom_user_skillsfield"]) );
+					endif;
+					if(isset($_POST["custom_user_hobbyfield"])):
+						update_post_meta($post_id, 'custom_user_hobby', sanitize_text_field( $_POST["custom_user_hobbyfield"]) );
+					endif;
+					if(isset($_POST["custom_user_ratingsfield"])):
+						update_post_meta($post_id, 'custom_user_ratings', sanitize_text_field( $_POST["custom_user_ratingsfield"]) );
+					endif;
+					
+				}
+			}
 		}
 		
 		public function manage_custom_user_posts_columns($columns) {
@@ -407,7 +379,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 			} 
 
 			if(isset( $_GET['post_type']) && !empty( $_GET['post_type'] )) {
-				if( $_GET['post_type'] == "user_category" ){
+				if( $_GET['post_type'] === "user_category" ){
 					$theme_files = 'archive-custom_user.php';
 					$exists_in_theme = locate_template($theme_files, false);
 					

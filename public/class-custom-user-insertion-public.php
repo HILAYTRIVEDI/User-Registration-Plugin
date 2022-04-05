@@ -76,7 +76,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			return $output;
 		}
 
-		public function Custom_user_script_loader_tag($tag, $handle, $src) {
+		public function Custom_user_script_loader_tag($tag, $handle) {
 	
 			if ($handle === 'Custom_User_recaptcha') {
 				
@@ -137,7 +137,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 							<input id="user_hobby" name="user_hobby" type="text" class="required user_input">
 							<label for="custom_user_skill">What are your skills ? *</label>
 							<?php 
-								$skills = get_option( '	custom-user-admin-page__skill--list' );
+								$skills = get_option( 'custom-user-admin-page__skill--list' );
 								$skills_new_array = explode("\n",$skills);
 							?>
 							<select name="custom_user_skill" id="custom_user_skill" class="custom_user_skill required" name="skills[]" multiple="multiple">
@@ -150,7 +150,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 							<label for="custom_user_skill">Select the User category? *</label>
 							<?php 
 							$args = array(
-									'show_option_all'	=> "None",
+									'show_option_all'	=> "",
 									'orderby'           => 'id',
 									'order'             => 'ASC',
 									'show_count'        => 0,
@@ -175,7 +175,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 								
 								wp_dropdown_categories( $args );					
 							?>
-							<div class="g-recaptcha" data-sitekey="<?php echo MYCAPTCHAKEY?>"></div><br/>
+							<div class="g-recaptcha" data-sitekey="<?php echo esc_attr( MYCAPTCHAKEY )?>"></div><br/>
 							<div class="captcha-error-message" id="captcha-error-message"></div>
 							<p>(*) Mandatory</p>
 						</section>
@@ -192,15 +192,22 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			$shortcode_args = shortcode_atts( array(
 				'category' => ""
 			), $attr );
-			$registered_user_id=( isset( $_GET['registered_user_id'] ) && !empty( $_GET['registered_user_id'] ) ) ?  $_GET['registered_user_id'] :"";
-			$custom_user_password=( isset( $_GET['custom_user_password'] ) && !empty( $_GET['custom_user_password'] ) ) ?  $_GET['custom_user_password'] :"";
-			$custom_user_email = ( isset( $_GET['email'] ) && !empty( $_GET['email'] ) ) ?  $_GET['email'] :"";
+
+			if(isset( $_GET['nonce'] ) && !empty( $_GET['nonce'] )){
+				if (!wp_verify_nonce($_GET['nonce'], 'ajax-nonce') ) {
+					die();
+				}
+			}
+
+			$registered_user_id=( isset( $_GET['registered_user_id'] ) && !empty( $_GET['registered_user_id'] ) ) ?  sanitize_text_field($_GET['registered_user_id']) :"";
+			$custom_user_password=( isset( $_GET['custom_user_password'] ) && !empty( $_GET['custom_user_password'] ) ) ?  sanitize_text_field($_GET['custom_user_password']) :"";
+			$custom_user_email = ( isset( $_GET['email'] ) && !empty( $_GET['email'] ) ) ?  sanitize_email( $_GET['email'] ) :"";
 			if ($registered_user_id !== "") {
                 wp_update_post(array(
                 'ID'    =>  $registered_user_id,
                 'post_status'   =>  'publish'
                 ));
-				wp_mail($custom_user_email, "Registration Approved", 'Admin approved you registration Your password is '.$custom_user_password.'');
+				wp_mail($custom_user_email, "Registration Approved", 'Admin approved you registration Your password is '.$custom_user_password.' Please do not share with anyone');
             }
 			ob_start(); ?>
 			<div class="custom-user-tool__container">
@@ -369,6 +376,13 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 		}
 
 		public function custom_user_login_form_handler(){
+
+			if(isset( $_GET['nonce'] ) && !empty( $_GET['nonce'] )){
+				if (!wp_verify_nonce($_GET['nonce'], 'ajax-nonce') ) {
+					die();
+				}
+			}
+
             $user_name=( isset( $_GET['customuser_name'] ) && !empty( $_GET['customuser_name'] ) ) ? sanitize_text_field($_GET['customuser_name']) :"";
             $name=( isset( $_GET['customname'] ) && !empty( $_GET['customname'] ) ) ? sanitize_text_field($_GET['customname']) :""; 
             $surname=( isset( $_GET['surname'] ) && !empty( $_GET['surname'] ) ) ? sanitize_text_field($_GET['surname']) :"";
@@ -382,34 +396,52 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			// $user_avatar=( isset( $_GET['user_avatar'] ) && !empty( $_GET['user_avatar'] ) ) ? sanitize_text_field($_GET['user_avatar']) :"";
 			$custom_user_password = ( isset( $_GET['custom_user_password'] ) && !empty( $_GET['custom_user_password'] ) ) ? $_GET['custom_user_password'] :"" ;
 
-            $my_cptpost_args = array(
+			$args = array(
+				'post_type' => 'custom_user',
+				'post_status'   => 'draft',
+				'meta_query' => array(
+						'relation' => 'AND',
+						array(
+								'key' => 'custom_user_email',
+								'value' => $email,
+								'compare' => '='),
+						)
+			);
 
-                'post_title'    => $user_name,
-                'post_status'   => 'draft',
-                'post_type'     => 'custom_user',
-                'tax_input'     => array( 'user_category' => $custom_user_cat),
+			$query = new WP_Query($args);
 
-                'meta_input'    => array(
-                    'custom_user_first_name'        => $name,
-                    'custom_user_lastname_name'     => $surname,
-                    'custom_user_email'             => $email,
-                    'custom_user_dob'               => $date_of_birth,
-                    'custom_user_address'           => $address,
-                    'custom_user_postal'            => $user_postal,
-                    'custom_user_skills'            => $user_skills,
-                    'custom_user_hobby'             => $user_hobbies,
-					'custom_user_password'			=> $custom_user_password,
-                )   
-            );
-			$cpt_id = wp_insert_post( $my_cptpost_args );
+			if( !$query->have_posts(  ) ):
+				$my_cptpost_args = array(
 
-            if ($cpt_id !== 0) {
-				$custom_admin_mail = get_option( "custom-user-admin-page__email" );
-                wp_mail( $custom_admin_mail, 'New User Inquiry', 'New user has been registered! click the link below to verify the user. <a href='.site_url("/").'?post_type=user_category&email='.$email.'&custom_user_password='.$custom_user_password.'l&registered_user_id='.$cpt_id.'>verify user here</a>' ); 
-            }
+					'post_title'    => $user_name,
+					'post_status'   => 'draft',
+					'post_type'     => 'custom_user',
+					'tax_input'     => array( 'user_category' => $custom_user_cat),
+	
+					'meta_input'    => array(
+						'custom_user_first_name'        => $name,
+						'custom_user_lastname_name'     => $surname,
+						'custom_user_email'             => $email,
+						'custom_user_dob'               => $date_of_birth,
+						'custom_user_address'           => $address,
+						'custom_user_postal'            => $user_postal,
+						'custom_user_skills'            => $user_skills,
+						'custom_user_hobby'             => $user_hobbies,
+						'custom_user_password'			=> $custom_user_password,
+					)   
+				);
+				$cpt_id = wp_insert_post( $my_cptpost_args );
+	
+				if ($cpt_id !== 0) {
+					$custom_admin_mail = get_option( "custom-user-admin-page__email" );
+					wp_mail( $custom_admin_mail, 'New User Inquiry', 'New user has been registered! click the link below to verify the user. <a href='.site_url("/").'?post_type=user_category&email='.$email.'&custom_user_password='.$custom_user_password.'&registered_user_id='.$cpt_id.'&nonce='.$_GET['nonce'].'>verify user here</a>' ); 
+				}
+			endif;
+
+          
             ob_start(); ?>
             <div class="container">
-                <form id="custom-user-login-form" class="custom-user-login-form" action="#" method="post">
+                <form id="custom-user-login-form" class="custom-user-login-form" action="#" method="post" autocomplete="off">
 					<div class="custom-user-login-form__title">
 						Welcome !!
 					</div>
@@ -458,15 +490,16 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			if($query->have_posts(  )):
 				while($query->have_posts(  )):
 					$query->the_post(  );
-					$custom_user_status = get_post_status( $post->ID);
-					if($custom_user_status == "publish"){
-						print_r("Success");
+					$user_post_id = get_the_ID(  );
+					$custom_user_status = get_post_status($user_post_id);
+					if($custom_user_status === "publish"){
+						echo json_encode(array('success' => 1));
 					} else {
-						print_r("Not Approved");
+						echo json_encode(array('success' => 0));
 					}
 				endwhile;
 			else:
-				print_r("Failed");
+				echo json_encode(array('success' => 2));
 			endif;
 			wp_die();
 		}
@@ -511,14 +544,14 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 				);
 			}
 
-			// if (isset( $_GET['ratings'] ) && !empty( $_GET['ratings'] )) {
-			// 	$custom_ratings =  sanitize_text_field($_GET['ratings']);
-			// 	$args['meta_query'][] = array(
-			// 		'key' => 'custom_user_ratings',
-			// 		'compare' => '=',
-			// 		'value' => $custom_ratings,
-			// 	);
-			// }
+			if (isset( $_GET['ratings'] ) && !empty( $_GET['ratings'] )) {
+				$custom_ratings =  sanitize_text_field($_GET['ratings']);
+				$args['meta_query'][] = array(
+					'key' => 'custom_user_ratings',
+					'compare' => '=',
+					'value' => $custom_ratings,
+				);
+			}
 
 			if (isset( $_GET['dobfrom'] ) && !empty( $_GET['dobfrom'] ) && isset( $_GET['dobto'] ) && !empty( $_GET['dobto'] )) {
 				$dob_from =  sanitize_text_field($_GET['dobfrom']);
@@ -612,6 +645,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 
 			check_ajax_referer( 'ajax-nonce', 'nonce' );
 
+			$user_nonce = ( isset( $_POST['nonce'] ) && !empty( $_POST['nonce'] ) ) ? sanitize_text_field($_POST['nonce']) :"";
 			$user_name=( isset( $_POST['userName'] ) && !empty( $_POST['userName'] ) ) ? sanitize_text_field($_POST['userName']) :"";
 			$name=( isset( $_POST['name'] ) && !empty( $_POST['name'] ) ) ? sanitize_text_field($_POST['name']) :""; 
 			$surname=( isset( $_POST['surname'] ) && !empty( $_POST['surname'] ) ) ? sanitize_text_field($_POST['surname']) :"";
@@ -659,13 +693,12 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			$response = json_decode($output);
 
 			if($response->success && $count_of_Results == 0){
-				wp_mail( $email, 'Please verify your account', 'Thanks for registration! click the link below to verify. <a href='.site_url("/").'login/?email='.$email.'&custom_user_password='.$custom_user_password.'&customuser_name='.rawurlencode($user_name).'&customname='.rawurlencode($name).'&surname='.rawurlencode($surname).'&date_of_birth='.$date_of_birth.'&address='.rawurlencode($address).'&user_postal='.$user_postal.'&user_skill='.rawurlencode($user_skills).'&user_hobby='.rawurlencode($user_hobbies).'&custom_user_cat='.$final_custom_user_cat.'>verify email here</a>' );
-				echo "Success"; 
-			} else if($response->success && $count_of_Results != 0){
-				echo "Already user";
+				wp_mail( $email, 'Please verify your account', 'Thanks for registration! click the link below to verify. <a href='.site_url("/").'login/?email='.$email.'&custom_user_password='.$custom_user_password.'&customuser_name='.rawurlencode($user_name).'&customname='.rawurlencode($name).'&surname='.rawurlencode($surname).'&date_of_birth='.$date_of_birth.'&address='.rawurlencode($address).'&user_postal='.$user_postal.'&user_skill='.rawurlencode($user_skills).'&user_hobby='.rawurlencode($user_hobbies).'&custom_user_cat='.$final_custom_user_cat.'&nonce='.$user_nonce.'>verify email here</a>' );
+				echo json_encode(array('success' => 1)); 
 			} else {
-				echo "Fail";
+				echo json_encode(array('success' => 0));
 			}
+			wp_die();
 		}
 	}
 

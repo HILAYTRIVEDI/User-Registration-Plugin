@@ -14,12 +14,6 @@
 .custom_user_ratingsfield--text{
     width: 150px !important;
   }
-  
-
- .custom_meta_notes{
-     display: block;
-     margin-bottom: 5px;
- }
 
  .custom-user-admin-page{
      display: flex;
@@ -35,3 +29,22 @@
  .custom-user-admin-page .custom-user-admin-page__email--text{
     padding: 5px 10px;
  }
+
+ .custom_user_field--wrapper{
+    border-bottom: 1px solid rgb(212, 212, 212);
+    padding: 20px 0;
+ }
+ .custom_user_field--wrapper .custom_user_addressfield--text{
+     margin: 10px 0;
+ }
+ 
+ .custom_user_field--wrapper input {
+     width: 100%;
+ }
+
+ .custom_user_field--wrapper .custom_meta_notes{
+    display: block;
+    font-size: 16px;
+    color: #000;
+    margin: 10px 0;
+}

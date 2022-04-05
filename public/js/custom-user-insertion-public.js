@@ -1,5 +1,99 @@
 (function ($) {
   "use strict";
+  $(document).ready(function () {
+    $(".custom-pagination .page-numbers:first-child").addClass("current");
+
+    if ($("#custom-user-tool__search--form").length > 0) {
+      var datePickerIdfrom = document.getElementById(
+        "custom-user-tool__search--dobfrom"
+      );
+      datePickerIdfrom.max = new Date().toISOString().split("T")[0];
+      var datePickerIdto = document.getElementById(
+        "custom-user-tool__search--dobto"
+      );
+      datePickerIdto.max = new Date().toISOString().split("T")[0];
+    }
+    if ($("#contact").length > 0) {
+      var datePickerId = document.getElementById("date_of_birth");
+      datePickerId.max = new Date().toISOString().split("T")[0];
+    }
+    var form = $("#contact");
+
+    form.validate({
+      errorPlacement: function errorPlacement(error, element) {
+        element.before(error);
+      },
+      rules: {
+        profile_photo: {
+          required: true,
+        },
+        email: {
+          required: true,
+          email: true,
+        },
+      },
+    });
+    form.children("div").steps({
+      headerTag: "h3",
+      bodyTag: "section",
+      transitionEffect: "slideLeft",
+      onStepChanging: function (event, currentIndex, newIndex) {
+        form.validate().settings.ignore = ":disabled,:hidden";
+        return form.valid();
+      },
+      onFinishing: function (event, currentIndex) {
+        form.validate().settings.ignore = ":disabled";
+        return form.valid();
+      },
+      onFinished: function (event, currentIndex) {
+        event.preventDefault();
+        var fd = new FormData(form[0]);
+        fd.append("action", "custom_user_insertion_form");
+        fd.append("nonce", Custom_User_params.nonce);
+        fd.append("userAvatar", $("#profile_photo").val());
+        var inputs = $("#contact :input");
+        inputs.each(function () {
+          fd.append(this.name, $(this).val());
+        });
+        $.ajax({
+          url: Custom_User_params.ajaxurl,
+          type: "POST",
+          data: fd,
+          contentType: false,
+          processData: false,
+          success: function (response) {
+            console.log(response);
+            var jsonData = JSON.parse(response);
+
+            if (jsonData.success === 1) {
+              form[0].reset();
+              $("#captcha-error-message").text(
+                "Form Submitted Sucessfully , Please verify your account through email..."
+              );
+              $("#captcha-error-message").css("color", "green");
+              window.setTimeout(function () {
+                window.location.replace(document.location.origin + "/login/");
+              }, 5000);
+            } else if (jsonData.success === 2) {
+              $("#captcha-error-message").text(
+                "Seems like you are already a User, please check your mail for the verification or wait for admin to approve your verificcation"
+              );
+              $("#captcha-error-message").css("color", "orange");
+            } else {
+              $("#captcha-error-message").text("Please verify the Captcha");
+              $("#captcha-error-message").css("color", "red");
+            }
+          },
+        });
+      },
+    });
+  });
+
+  $(document).ready(function () {
+    $("#custom_user_skill").select2();
+    $("#custom_user_cat").select2();
+  });
+
   $(document).on("click", "#custom-user-tool__search--submit", function (e) {
     var keyWord = $("#custom-user-tool__search--keyword").val();
     var dobfrom = $("#custom-user-tool__search--dobfrom").val();
@@ -51,20 +145,15 @@
       data: data,
       type: "POST",
       success: function (response) {
-        console.log(response);
-        if (response == "Success") {
+        var jsonData = JSON.parse(response);
+        if (jsonData.success == 1) {
           $("#custom-user-login-form-error").text(
             "Login Successfull , Welcome Thanks for choosing us"
           );
           $("#custom-user-login-form-error").css("color", "green");
-        } else if (response == "Not Approved") {
-          $("#custom-user-login-form-error").text(
-            "Sorry for inconvience , but admin did'nt approved your account yet !!"
-          );
-          $("#custom-user-login-form-error").css("color", "orange");
         } else {
           $("#custom-user-login-form-error").text(
-            "Please register your account first"
+            "Please register your account first. If already registered wait for admin approval"
           );
           $("#custom-user-login-form-error").css("color", "red");
         }
@@ -91,93 +180,6 @@
       $("#profile_photo_preview").css("display", "block");
       $("#profile_photo_preview").attr("src", URL.createObjectURL(file));
     }
-  });
-
-  $(document).ready(function () {
-    $(".custom-pagination .page-numbers:first-child").addClass("current");
-
-    // if ($("#custom-user-tool__search--form").length > 0) {
-    //   var datePickerIdfrom = document.getElementById(
-    //     "custom-user-tool__search--dobfrom"
-    //   );
-    //   datePickerIdfrom.max = new Date().toISOString().split("T")[0];
-    //   var datePickerIdto = document.getElementById(
-    //     "custom-user-tool__search--dobto"
-    //   );
-    //   datePickerIdto.max = new Date().toISOString().split("T")[0];
-    // }
-    // if ($("#contact").length > 0) {
-    //   var datePickerId = document.getElementById("date_of_birth");
-    //   datePickerId.max = new Date().toISOString().split("T")[0];
-    // }
-    var form = $("#contact");
-
-    form.validate({
-      errorPlacement: function errorPlacement(error, element) {
-        element.before(error);
-      },
-      rules: {
-        profile_photo: {
-          required: true,
-        },
-        email: {
-          required: true,
-          email: true,
-        },
-      },
-    });
-    form.children("div").steps({
-      headerTag: "h3",
-      bodyTag: "section",
-      transitionEffect: "slideLeft",
-      onStepChanging: function (event, currentIndex, newIndex) {
-        form.validate().settings.ignore = ":disabled,:hidden";
-        return form.valid();
-      },
-      onFinishing: function (event, currentIndex) {
-        form.validate().settings.ignore = ":disabled";
-        return form.valid();
-      },
-      onFinished: function (event, currentIndex) {
-        event.preventDefault();
-        var fd = new FormData(form[0]);
-        fd.append("action", "custom_user_insertion_form");
-        fd.append("nonce", Custom_User_params.nonce);
-        fd.append("userAvatar", $("#profile_photo").val());
-        var inputs = $("#contact :input");
-        inputs.each(function () {
-          fd.append(this.name, $(this).val());
-        });
-        $.ajax({
-          url: Custom_User_params.ajaxurl,
-          type: "POST",
-          data: fd,
-          contentType: false,
-          processData: false,
-          success: function (response) {
-            console.log(response);
-            if (response == "Success0") {
-              form[0].reset();
-              $("#captcha-error-message").text(
-                "Form Submitted Sucessfully , Please verify your account through email..."
-              );
-              $("#captcha-error-message").css("color", "green");
-              window.setTimeout(function () {
-                window.location.replace(document.location.origin + "/login/");
-              }, 5000);
-            } else if (response == "Already user0") {
-              $("#captcha-error-message").text(
-                "Seems like you are already a User, please check your mail for the verification or wait for admin to approve your verificcation"
-              );
-              $("#captcha-error-message").css("color", "orange");
-            } else {
-              $("#captcha-error-message").text("Please verify the Captcha");
-              $("#captcha-error-message").css("color", "red");
-            }
-          },
-        });
-      },
-    });
   });
 
   $(document).on("click", ".custom-pagination .page-numbers", function () {
@@ -221,9 +223,4 @@
       },
     });
   }
-
-  $(document).ready(function () {
-    $("#custom_user_skill").select2();
-    $("#custom_user_cat").select2();
-  });
 })(jQuery);
