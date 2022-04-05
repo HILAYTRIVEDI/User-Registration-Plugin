@@ -24,8 +24,14 @@
  .custom-user-admin-page{
      display: flex;
      flex-direction: column;
+     padding-right:50px ;
  }
  .custom-user-admin-page .custom-user-admin-page__skill--text{
      max-width: 500px;
      width: 100%;
+     margin-bottom: 50px;
+ }
+
+ .custom-user-admin-page .custom-user-admin-page__email--text{
+    padding: 5px 10px;
  }

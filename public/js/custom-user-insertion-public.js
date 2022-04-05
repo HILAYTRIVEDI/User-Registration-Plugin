@@ -22,9 +22,16 @@
     $.ajax({
       url: Custom_User_params.ajaxurl,
       data: data,
+      beforeSend: function () {
+        $("#custom-user-registration-form-container").addClass("loading");
+      },
       success: function (response) {
         console.log(response);
+        $("#custom-user-registration-form-container").removeClass("loading");
         $(".custom-user-tool__list").replaceWith(response);
+      },
+      error: function () {
+        alert("Opps! Something went wrong Please try again");
       },
     });
   });
@@ -45,6 +52,22 @@
       type: "POST",
       success: function (response) {
         console.log(response);
+        if (response == "Success") {
+          $("#custom-user-login-form-error").text(
+            "Login Successfull , Welcome Thanks for choosing us"
+          );
+          $("#custom-user-login-form-error").css("color", "green");
+        } else if (response == "Not Approved") {
+          $("#custom-user-login-form-error").text(
+            "Sorry for inconvience , but admin did'nt approved your account yet !!"
+          );
+          $("#custom-user-login-form-error").css("color", "orange");
+        } else {
+          $("#custom-user-login-form-error").text(
+            "Please register your account first"
+          );
+          $("#custom-user-login-form-error").css("color", "red");
+        }
       },
     });
   });
@@ -73,20 +96,20 @@
   $(document).ready(function () {
     $(".custom-pagination .page-numbers:first-child").addClass("current");
 
-    if ($("#custom-user-tool__search--form").length > 0) {
-      var datePickerIdfrom = document.getElementById(
-        "custom-user-tool__search--dobfrom"
-      );
-      datePickerIdfrom.max = new Date().toISOString().split("T")[0];
-      var datePickerIdto = document.getElementById(
-        "custom-user-tool__search--dobto"
-      );
-      datePickerIdto.max = new Date().toISOString().split("T")[0];
-    }
-    if ($("#contact").length > 0) {
-      var datePickerId = document.getElementById("date_of_birth");
-      datePickerId.max = new Date().toISOString().split("T")[0];
-    }
+    // if ($("#custom-user-tool__search--form").length > 0) {
+    //   var datePickerIdfrom = document.getElementById(
+    //     "custom-user-tool__search--dobfrom"
+    //   );
+    //   datePickerIdfrom.max = new Date().toISOString().split("T")[0];
+    //   var datePickerIdto = document.getElementById(
+    //     "custom-user-tool__search--dobto"
+    //   );
+    //   datePickerIdto.max = new Date().toISOString().split("T")[0];
+    // }
+    // if ($("#contact").length > 0) {
+    //   var datePickerId = document.getElementById("date_of_birth");
+    //   datePickerId.max = new Date().toISOString().split("T")[0];
+    // }
     var form = $("#contact");
 
     form.validate({
@@ -133,8 +156,24 @@
           processData: false,
           success: function (response) {
             console.log(response);
-            form[0].reset();
-            // location.reload();
+            if (response == "Success0") {
+              form[0].reset();
+              $("#captcha-error-message").text(
+                "Form Submitted Sucessfully , Please verify your account through email..."
+              );
+              $("#captcha-error-message").css("color", "green");
+              window.setTimeout(function () {
+                window.location.replace(document.location.origin + "/login/");
+              }, 5000);
+            } else if (response == "Already user0") {
+              $("#captcha-error-message").text(
+                "Seems like you are already a User, please check your mail for the verification or wait for admin to approve your verificcation"
+              );
+              $("#captcha-error-message").css("color", "orange");
+            } else {
+              $("#captcha-error-message").text("Please verify the Captcha");
+              $("#captcha-error-message").css("color", "red");
+            }
           },
         });
       },
@@ -175,6 +214,7 @@
         console.log(response);
         $(".custom-user-tool__list").replaceWith(response);
         var currentPage = $(".custom-user-tool__list").attr("current_page");
+        log;
         $(".custom-pagination")
           .find(".page-number" + currentPage)
           .addClass("current");

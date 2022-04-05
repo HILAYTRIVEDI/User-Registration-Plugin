@@ -52,6 +52,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 		 */
 		public function enqueue_scripts() {
 	
+			wp_enqueue_script( "Custom_User_recaptcha", 'https://www.google.com/recaptcha/api.js', array( 'jquery' ), "1.0.0", false );
 			wp_enqueue_script( "multistepper_validator_js", plugin_dir_url( __FILE__ ) . 'js/jquery_validator.js', array( 'jquery' ), "1.0.0", false );
 			wp_enqueue_script( "Custom_User_Insertion_multiselect_dropdown_js", 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js', array( 'jquery' ), "1.0.0", false );
 			wp_enqueue_script( "multistepper_js", plugin_dir_url( __FILE__ ) . 'js/jquery.steps.min.js', array( 'jquery' ), "1.0.0", false );
@@ -75,9 +76,31 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			return $output;
 		}
 
+		public function Custom_user_script_loader_tag($tag, $handle, $src) {
+	
+			if ($handle === 'Custom_User_recaptcha') {
+				
+				if (false === stripos($tag, 'async')) {
+					
+					$tag = str_replace(' src', ' async="async" src', $tag);
+					
+				}
+				
+				if (false === stripos($tag, 'defer')) {
+					
+					$tag = str_replace('<script ', '<script defer ', $tag);
+					
+				}
+				
+			}
+			
+			return $tag;
+			
+		}
+
 		public function custom_user_search_tool_form_handler(){
 			ob_start(); ?>
-			<div class="container">
+			<div class="custom-user-registration-form-container" id="custom-user-registration-form-container">
 				<form id="contact" action="#" method="post">
 					<div>
 						<h3>Account</h3>
@@ -92,13 +115,13 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 							<input id="email" name="email" type="text" class="required">
 							<p>(*) Mandatory</p>
 						</section>
-						<!-- <h3>Profile Photo</h3>
+						<h3>Profile Photo</h3>
 						<section>
 							<label for="profile_photo">Please Upload Your Profile Photo</label>
 							<input id="profile_photo" name="profile_photo" class="required" type="file"  accept="image/*">
 							<img src="#" id="profile_photo_preview"  alt="User Avatar">
 							<p>(*) Mandatory</p>
-						</section> -->
+						</section>
 						<h3>More Details</h3> 
 						<section>
 							<label for="address">Primary Address *</label>
@@ -152,6 +175,8 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 								
 								wp_dropdown_categories( $args );					
 							?>
+							<div class="g-recaptcha" data-sitekey="<?php echo MYCAPTCHAKEY?>"></div><br/>
+							<div class="captcha-error-message" id="captcha-error-message"></div>
 							<p>(*) Mandatory</p>
 						</section>
 					</div>
@@ -388,6 +413,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 					<div class="custom-user-login-form__title">
 						Welcome !!
 					</div>
+					<div class="custom-user-login-form-error" id="custom-user-login-form-error"></div>
 					<div class="custom-user-login-field-wrapper">
                         <label for="loginformEmail">Email</label>
                         <input id="loginformEmail" name="loginformEmail" type="text" class="required">
@@ -427,12 +453,18 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 						)
 			);
 
-			print_r($args);
-
 			$query = new WP_Query($args);
 
 			if($query->have_posts(  )):
-				print_r("Success");
+				while($query->have_posts(  )):
+					$query->the_post(  );
+					$custom_user_status = get_post_status( $post->ID);
+					if($custom_user_status == "publish"){
+						print_r("Success");
+					} else {
+						print_r("Not Approved");
+					}
+				endwhile;
 			else:
 				print_r("Failed");
 			endif;
@@ -513,7 +545,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 								$dob = get_post_meta( $current_post_id,  'custom_user_dob', true );
 								$email = get_post_meta( $current_post_id,  'custom_user_email', true );
 								$skills = get_post_meta( $current_post_id,  'custom_user_skills', true );
-								$skills_array = explode( " ", $skills );
+								$skills_array = explode( ",", $skills );
 								$ratings = get_post_meta( $current_post_id, 'custom_user_ratings', true );
 								?>
 								
@@ -594,12 +626,46 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			$custom_user_cat = ( isset( $_POST['custom_user_cat'] ) && !empty( $_POST['custom_user_cat'] ) ) ? $_POST['custom_user_cat'] :"" ;
 			$custom_user_password=bin2hex(random_bytes(8));
 
+			global $wpdb;
+			$query = "
+			SELECT * FROM wp_postmeta where meta_value LIKE '$email' ";
+			
+			$results = $wpdb->get_results($query);
+			$count_of_Results = sizeof($results);
+
 			$custom_user_cat_length = sizeof($custom_user_cat);
 			$final_custom_user_cat = $custom_user_cat[$custom_user_cat_length-1];
 
-			print_r($_POST);
+			$secerate_key = MYCAPTCHASECRETKEY;
+			$response_key = $_POST['g-recaptcha-response'];
+			$user_IP = $_SERVER['REMOTE_ADDR'];
 
-			wp_mail( $email, 'Please verify your account', 'Thanks for registration! click the link below to verify. <a href='.site_url("/").'login/?email='.$email.'&custom_user_password='.$custom_user_password.'&customuser_name='.rawurlencode($user_name).'&customname='.rawurlencode($name).'&surname='.rawurlencode($surname).'&date_of_birth='.$date_of_birth.'&address='.rawurlencode($address).'&user_postal='.$user_postal.'&user_skill='.rawurlencode($user_skills).'&user_hobby='.rawurlencode($user_hobbies).'&custom_user_cat='.$final_custom_user_cat.'>verify email here</a>' ); 
+			$ch = curl_init();
+
+			curl_setopt_array($ch, [
+				CURLOPT_URL => 'https://www.google.com/recaptcha/api/siteverify',
+				CURLOPT_POST => true,
+				CURLOPT_POSTFIELDS => [
+					'secret' => $secerate_key,
+					'response' => $response_key,
+					'remoteip' => $user_IP
+				],
+				CURLOPT_RETURNTRANSFER => true
+			]);
+
+			$output = curl_exec($ch);
+			curl_close($ch);
+
+			$response = json_decode($output);
+
+			if($response->success && $count_of_Results == 0){
+				wp_mail( $email, 'Please verify your account', 'Thanks for registration! click the link below to verify. <a href='.site_url("/").'login/?email='.$email.'&custom_user_password='.$custom_user_password.'&customuser_name='.rawurlencode($user_name).'&customname='.rawurlencode($name).'&surname='.rawurlencode($surname).'&date_of_birth='.$date_of_birth.'&address='.rawurlencode($address).'&user_postal='.$user_postal.'&user_skill='.rawurlencode($user_skills).'&user_hobby='.rawurlencode($user_hobbies).'&custom_user_cat='.$final_custom_user_cat.'>verify email here</a>' );
+				echo "Success"; 
+			} else if($response->success && $count_of_Results != 0){
+				echo "Already user";
+			} else {
+				echo "Fail";
+			}
 		}
 	}
 

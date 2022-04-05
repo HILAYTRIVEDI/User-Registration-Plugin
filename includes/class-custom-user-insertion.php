@@ -169,6 +169,7 @@ class Custom_User_Insertion {
 		$this->loader->add_filter( 'theme_page_templates', $plugin_admin, 'cu_add_page_template_to_dropdown' );
 		$this->loader->add_filter( 'template_include', $plugin_admin, 'cu_change_page_template');
 		$this->loader->add_filter( 'manage_custom_user_posts_columns', $plugin_admin, 'manage_custom_user_posts_columns');
+		$this->loader->add_filter( 'page_template', $plugin_admin, 'wp_page_template' );
 
 	}
 
@@ -192,6 +193,7 @@ class Custom_User_Insertion {
 
 		// Filters
 		$this->loader->add_filter( 'wp_dropdown_cats', $plugin_public, 'wp_dropdown_cats_multiple', 10, 2 );
+		$this->loader->add_filter('script_loader_tag', $plugin_public, 'Custom_user_script_loader_tag', 10, 3);
 
 	}
 

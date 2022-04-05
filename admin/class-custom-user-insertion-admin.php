@@ -391,8 +391,9 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 		}
 
 		public function cu_add_page_template_to_dropdown( $templates ) {
-			$templates[plugin_dir_path( __FILE__ ) . 'templates/template-post-listing.php'] = __( 'Registration form template', 'text-domain' );
-
+			$templates[plugin_dir_path( __FILE__ ) . 'templates/template-post-registration.php'] = __( 'Registration form template', 'text-domain' );
+			$templates[plugin_dir_path( __FILE__ ) . 'templates/template-post-login.php'] = __( 'Login form template', 'text-domain' );
+			
 			return $templates;
 		}
 
@@ -404,18 +405,31 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 					$template = $meta['_wp_page_template'][0];
 				}
 			} 
-			if( !is_single() && !is_page() ){
-				$theme_files = 'archive-custom_user.php';
-				$exists_in_theme = locate_template($theme_files, false);
-				
-				if ( $exists_in_theme !== '' ) {
-				  return $exists_in_theme;
-				} else {
-				  return plugin_dir_path(__FILE__) . 'templates/archive-custom_user.php';
+
+			if(isset( $_GET['post_type']) && !empty( $_GET['post_type'] )) {
+				if( $_GET['post_type'] == "user_category" ){
+					$theme_files = 'archive-custom_user.php';
+					$exists_in_theme = locate_template($theme_files, false);
+					
+					if ( $exists_in_theme !== '' ) {
+					  return $exists_in_theme;
+					} else {
+					  return plugin_dir_path(__FILE__) . 'templates/archive-custom_user.php';
+					}
 				}
 			}
 
 			return $template;
+		}
+
+		public function wp_page_template( $page_template ) {
+			if ( is_page( 'Login' ) ) {
+				$page_template = plugin_dir_path( __FILE__ ) . 'templates/template-post-login.php';
+			} 
+			if( is_page('Register') ){
+				$page_template = plugin_dir_path( __FILE__ ) . 'templates/template-post-registration.php';
+			} 
+			return $page_template;
 		}
 	}
 

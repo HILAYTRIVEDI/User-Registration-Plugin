@@ -36,6 +36,8 @@ if ( ! defined( 'WPINC' ) ) {
  * Rename this for your plugin and update it as you release new versions.
  */
 define( 'CUSTOM_USER_INSERTION_VERSION', '1.0.0' );
+define( 'MYCAPTCHAKEY', '6LceHUgfAAAAALS2oYgFoM1Lh_BHgjw9XXEvoAYH' );
+define( 'MYCAPTCHASECRETKEY', '6LceHUgfAAAAAG8lCU6-ttaxebZkYSQy-qwM7Omp' );
 
 /**
  * The code that runs during plugin activation.
