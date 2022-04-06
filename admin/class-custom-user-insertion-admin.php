@@ -229,7 +229,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 		public function custom_user_details_html($post){
 			$user_password = get_post_meta( $post->ID,  'custom_user_password', true );
 			$first_name = get_post_meta( $post->ID,  'custom_user_first_name', true );
-			$last_name = get_post_meta( $post->ID,  'custom_user_lastname_name', true );
+			$last_name = get_post_meta( $post->ID,  'custom_user_last_name', true );
 			$email = get_post_meta( $post->ID,  'custom_user_email', true );
 			$dob = get_post_meta( $post->ID,  'custom_user_dob', true );
 			$add = get_post_meta( $post->ID,  'custom_user_address', true );
@@ -249,7 +249,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 				</div>
 				<div class="custom_user_field--wrapper">
 					<label for="custom_user_lastname_namefield" class="custom_meta_notes">Last Name</label>
-					<input type="text" placeholder="Last Name" value="<?php echo esc_attr($last_name)?>" name="custom_user_lastname_namefield" id="custom_user_lastname_namefield" class="custom_user_lastname_namefield--text" require>
+					<input type="text" placeholder="Last Name" value="<?php echo esc_attr($last_name)?>" name="custom_user_last_namefield" id="custom_user_last_namefield" class="custom_user_lastname_namefield--text" require>
 				</div>
 				<div class="custom_user_field--wrapper">
 					<label for="custom_user_emailfield" class="custom_meta_notes">User Email</label>
@@ -278,8 +278,8 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 					<input id="custom_user_hobbyfield" value="<?php echo esc_attr($hobby)?>" class="user_input custom_user_hobbyfield--text" name="custom_user_hobbyfield"/>
 				</div>
 				<div class="custom_user_field--wrapper">
-					<label for="custom_user_ratingsfield" class="custom_meta_notes">User Ratings</label>
-					<input type="number" placeholder="Ratings for users" value="<?php echo esc_attr($ratings)?>" name="custom_user_ratingsfield" id="custom_user_ratingsfield" class="custom_user_ratingsfield--text" max=5 min="1">
+					<label for="custom_user_ratingsfield" class="custom_meta_notes">User Ratings out of 5</label>
+					<input type="number" placeholder="Ratings for users" value="<?php echo esc_attr($ratings)?>" name="custom_user_ratingsfield" id="custom_user_ratingsfield" class="custom_user_ratingsfield--text" min="1" max="5">
 				</div>
 			<?php
 			wp_nonce_field( 'create_user_details_action', 'create_user_details', );
@@ -296,10 +296,10 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 						update_post_meta($post_id, 'custom_user_password', sanitize_text_field ( $_POST["custom_user_passwordfield"]) );
 					endif;
 					if(isset($_POST["custom_user_first_namefield"])):
-						update_post_meta($post_id, 'custom_user_first_name', sanitize_email ( $_POST["custom_user_first_namefield"]) );
+						update_post_meta($post_id, 'custom_user_first_name', sanitize_text_field ( $_POST["custom_user_first_namefield"]) );
 					endif;
-					if(isset($_POST["custom_user_lastname_namefield"])):
-						update_post_meta($post_id, 'custom_user_lastname_name', sanitize_email ( $_POST["custom_user_lastname_namefield"]) );
+					if(isset($_POST["custom_user_last_namefield"])):
+						update_post_meta($post_id, 'custom_user_last_name', sanitize_text_field ( $_POST["custom_user_last_namefield"]) );
 					endif;
 					if(isset($_POST["custom_user_emailfield"])):
 						update_post_meta($post_id, 'custom_user_email', sanitize_email ( $_POST["custom_user_emailfield"]) );
@@ -323,6 +323,12 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 						update_post_meta($post_id, 'custom_user_hobby', sanitize_text_field( $_POST["custom_user_hobbyfield"]) );
 					endif;
 					if(isset($_POST["custom_user_ratingsfield"])):
+						if($_POST["custom_user_ratingsfield"] > 5){
+							$_POST["custom_user_ratingsfield"] = 5;
+						}
+						if ($_POST["custom_user_ratingsfield"] < 0){
+							$_POST["custom_user_ratingsfield"] = 1;
+						}
 						update_post_meta($post_id, 'custom_user_ratings', sanitize_text_field( $_POST["custom_user_ratingsfield"]) );
 					endif;
 					

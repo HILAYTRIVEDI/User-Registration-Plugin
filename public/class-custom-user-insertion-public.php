@@ -422,7 +422,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 	
 					'meta_input'    => array(
 						'custom_user_first_name'        => $name,
-						'custom_user_lastname_name'     => $surname,
+						'custom_user_last_name'     	=> $surname,
 						'custom_user_email'             => $email,
 						'custom_user_dob'               => $date_of_birth,
 						'custom_user_address'           => $address,
