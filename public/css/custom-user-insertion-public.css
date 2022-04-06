@@ -252,11 +252,11 @@
 
 .custom-user-tool__search--dob-wrapper{
   display: flex;
-  align-items: center;
+  flex-direction: column;
 }
 
 .custom-user-tool__search--dob-wrapper span {
-  margin-left: 10px;
+  margin-top: 15px;
 }
 
 .custom-user-pagination-section{

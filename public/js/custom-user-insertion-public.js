@@ -3,20 +3,20 @@
   $(document).ready(function () {
     $(".custom-pagination .page-numbers:first-child").addClass("current");
 
-    // if ($("#custom-user-tool__search--form").length > 0) {
-    //   var datePickerIdfrom = document.getElementById(
-    //     "custom-user-tool__search--dobfrom"
-    //   );
-    //   datePickerIdfrom.max = new Date().toISOString().split("T")[0];
-    //   var datePickerIdto = document.getElementById(
-    //     "custom-user-tool__search--dobto"
-    //   );
-    //   datePickerIdto.max = new Date().toISOString().split("T")[0];
-    // }
-    // if ($("#contact").length > 0) {
-    //   var datePickerId = document.getElementById("date_of_birth");
-    //   datePickerId.max = new Date().toISOString().split("T")[0];
-    // }
+    if ($("#custom-user-tool__search--form").length > 0) {
+      var datePickerIdfrom = document.getElementById(
+        "custom-user-tool__search--dobfrom"
+      );
+      datePickerIdfrom.max = new Date().toISOString().split("T")[0];
+      var datePickerIdto = document.getElementById(
+        "custom-user-tool__search--dobto"
+      );
+      datePickerIdto.max = new Date().toISOString().split("T")[0];
+    }
+    if ($("#contact").length > 0) {
+      var datePickerId = document.getElementById("date_of_birth");
+      datePickerId.max = new Date().toISOString().split("T")[0];
+    }
     var form = $("#contact");
 
     form.validate({
