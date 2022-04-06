@@ -418,7 +418,7 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 					'post_title'    => $user_name,
 					'post_status'   => 'draft',
 					'post_type'     => 'custom_user',
-					'tax_input'     => array( 'user_category' => $custom_user_cat),
+					'tax_input'     => array( 'user_category' => array($custom_user_cat)),
 	
 					'meta_input'    => array(
 						'custom_user_first_name'        => $name,
@@ -683,7 +683,6 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			
 			$results = $wpdb->get_results($query);
 			$count_of_Results = sizeof($results);
-
 			$custom_user_cat_length = sizeof($custom_user_cat);
 			$final_custom_user_cat = $custom_user_cat[$custom_user_cat_length-1];
 
@@ -708,42 +707,47 @@ if( !class_exists('Custom_User_Insertion_Public') ){
 			curl_close($ch);
 
 			$response = json_decode($output);
-
-			if($response->success){
-
-				print_r("Success");
-				$wordpress_upload_dir = wp_upload_dir();
-
-				$profilepicture = $_FILES['userAvatar'];
-				$new_file_path = $wordpress_upload_dir['path'] . '/' . $profilepicture['name'];
-				$new_file_mime = mime_content_type( $profilepicture['tmp_name'] );
-
-				// If everything is OK
-				if( move_uploaded_file( $profilepicture['tmp_name'], $new_file_path ) ) {
-					
-
-					$upload_id = wp_insert_attachment( array(
-						'guid'           => $new_file_path, 
-						'post_mime_type' => $new_file_mime,
-						'post_title'     => preg_replace( '/\.[^.]+$/', '', $profilepicture['name'] ),
-						'post_content'   => '',
-						'post_status'    => 'inherit'
-					), $new_file_path );
-
-					// wp_generate_attachment_metadata() won't work if you do not include this file
-					require_once( ABSPATH . 'wp-admin/includes/image.php' );
-
-					// Generate and save the attachment metas into the database
-					wp_update_attachment_metadata( $upload_id, wp_generate_attachment_metadata( $upload_id, $new_file_path ) );
-
-					// Show the uploaded file in browser
-					wp_redirect( $wordpress_upload_dir['url'] . '/' . basename( $new_file_path ) );
-
-				}
-				
-				wp_mail( $email, 'Please verify your account', 'Thanks for registration! click the link below to verify. <a href='.site_url("/").'login/?email='.$email.'&custom_user_password='.$custom_user_password.'&customuser_name='.rawurlencode($user_name).'&customname='.rawurlencode($name).'&surname='.rawurlencode($surname).'&date_of_birth='.$date_of_birth.'&address='.rawurlencode($address).'&secondary_address='.$secondary_address.'&user_postal='.$user_postal.'&user_skill='.rawurlencode($user_skills).'&user_hobby='.rawurlencode($user_hobbies).'&user_avatar='.$upload_id.'&custom_user_cat='.$final_custom_user_cat.'&nonce='.$user_nonce.'>verify email here</a>' );
 			
-			}
+			if($count_of_Results == 0){
+
+				if($response->success){
+
+					// Success
+	
+					$wordpress_upload_dir = wp_upload_dir();
+	
+					$profilepicture = $_FILES['userAvatar'];
+					$new_file_path = $wordpress_upload_dir['path'] . '/' . $profilepicture['name'];
+					$new_file_mime = mime_content_type( $profilepicture['tmp_name'] );
+	
+					// If everything is OK
+					if( move_uploaded_file( $profilepicture['tmp_name'], $new_file_path ) ) {
+						
+	
+						$upload_id = wp_insert_attachment( array(
+							'guid'           => $new_file_path, 
+							'post_mime_type' => $new_file_mime,
+							'post_title'     => preg_replace( '/\.[^.]+$/', '', $profilepicture['name'] ),
+							'post_content'   => '',
+							'post_status'    => 'inherit'
+						), $new_file_path );
+	
+						// wp_generate_attachment_metadata() won't work if you do not include this file
+						require_once( ABSPATH . 'wp-admin/includes/image.php' );
+	
+						// Generate and save the attachment metas into the database
+						wp_update_attachment_metadata( $upload_id, wp_generate_attachment_metadata( $upload_id, $new_file_path ) );
+	
+						// Show the uploaded file in browser
+						wp_redirect( $wordpress_upload_dir['url'] . '/' . basename( $new_file_path ) );
+	
+					}
+
+					wp_mail( $email, 'Please verify your account', 'Thanks for registration! click the link below to verify. <a href='.site_url("/").'login/?email='.$email.'&custom_user_password='.$custom_user_password.'&customuser_name='.rawurlencode($user_name).'&customname='.rawurlencode($name).'&surname='.rawurlencode($surname).'&date_of_birth='.$date_of_birth.'&address='.rawurlencode($address).'&secondary_address='.rawurlencode($secondary_address).'&user_postal='.rawurlencode($user_postal).'&user_skill='.rawurlencode($user_skills).'&user_hobby='.rawurlencode($user_hobbies).'&user_avatar='.rawurlencode($upload_id).'&custom_user_cat='.rawurlencode($final_custom_user_cat).'&nonce='.rawurlencode($user_nonce).'>verify email here</a>' );
+				
+				}
+			} 
+			
 			wp_die();
 		}
 	}

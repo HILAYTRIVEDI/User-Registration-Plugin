@@ -271,7 +271,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 				</div>
 				<div class="custom_user_field--wrapper">
 					<label for="custom_user_skillsfield" class="custom_meta_notes">Please enter your new skills seperated by ","</label>
-					<input id="custom_user_skillsfield" value="<?php echo esc_attr($skills)?>" class="user_input custom_user_skillsfield--text" name="custom_user_skillsfield"/>
+					<input id="custom_user_skillsfield" value="<?php echo esc_attr($skills)?>" class="custom_user_skillsfield--text" name="custom_user_skillsfield"/>
 				</div>
 				<div class="custom_user_field--wrapper">
 					<label for="custom_user_hobbyfield" class="custom_meta_notes">Please enter your new hobbies seperated by " "</label>
@@ -279,7 +279,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 				</div>
 				<div class="custom_user_field--wrapper">
 					<label for="custom_user_ratingsfield" class="custom_meta_notes">User Ratings</label>
-					<input type="number" placeholder="Ratings for users" value="<?php echo esc_attr($ratings)?>" name="custom_user_ratingsfield" id="custom_user_ratingsfield" class="custom_user_ratingsfield--text" max="5" min="1" require>
+					<input type="number" placeholder="Ratings for users" value="<?php echo esc_attr($ratings)?>" name="custom_user_ratingsfield" id="custom_user_ratingsfield" class="custom_user_ratingsfield--text" max="5" min="1">
 				</div>
 			<?php
 			wp_nonce_field( 'create_user_details_action', 'create_user_details', );
