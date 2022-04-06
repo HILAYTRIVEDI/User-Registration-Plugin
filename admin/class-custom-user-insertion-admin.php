@@ -279,7 +279,7 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 				</div>
 				<div class="custom_user_field--wrapper">
 					<label for="custom_user_ratingsfield" class="custom_meta_notes">User Ratings</label>
-					<input type="number" placeholder="Ratings for users" value="<?php echo esc_attr($ratings)?>" name="custom_user_ratingsfield" id="custom_user_ratingsfield" class="custom_user_ratingsfield--text" max="5" min="1">
+					<input type="number" placeholder="Ratings for users" value="<?php echo esc_attr($ratings)?>" name="custom_user_ratingsfield" id="custom_user_ratingsfield" class="custom_user_ratingsfield--text" max=5 min="1">
 				</div>
 			<?php
 			wp_nonce_field( 'create_user_details_action', 'create_user_details', );
@@ -292,6 +292,15 @@ if( !class_exists('Custom_User_Insertion_Admin') ){
 					exit;
 				} else {
 				
+					if(isset($_POST["custom_user_passwordfield"])):
+						update_post_meta($post_id, 'custom_user_password', sanitize_text_field ( $_POST["custom_user_passwordfield"]) );
+					endif;
+					if(isset($_POST["custom_user_first_namefield"])):
+						update_post_meta($post_id, 'custom_user_first_name', sanitize_email ( $_POST["custom_user_first_namefield"]) );
+					endif;
+					if(isset($_POST["custom_user_lastname_namefield"])):
+						update_post_meta($post_id, 'custom_user_lastname_name', sanitize_email ( $_POST["custom_user_lastname_namefield"]) );
+					endif;
 					if(isset($_POST["custom_user_emailfield"])):
 						update_post_meta($post_id, 'custom_user_email', sanitize_email ( $_POST["custom_user_emailfield"]) );
 					endif;
